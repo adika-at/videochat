@@ -42,15 +42,15 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
 #tray{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:4px 8px;z-index:7}#tray button{background:none;font-size:24px}#tray button:hover{transform:scale(1.3)}
 #ice{position:absolute;left:8px;right:8px;bottom:8px;background:#171433f0;border:1px solid var(--a);border-radius:14px;padding:10px;font-size:13px;z-index:7}
 #ice button{margin:6px 6px 0 0;padding:4px 10px;border-radius:99px;background:var(--a);font-size:12px}
-.dock{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+.dock{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;background:#ffffff0d;border:1px solid var(--line);border-radius:99px;padding:8px 10px;backdrop-filter:blur(8px)}
+.stopb{height:48px;padding:0 22px;border-radius:99px;background:#ff4d5e22;border:1px solid var(--bad);font-weight:700}.stopb:disabled{opacity:.35;cursor:not-allowed}
+.iam{height:48px;padding:0 18px;border-radius:99px;background:#ffffff14;border:1px solid var(--line)}.iam:hover{border-color:var(--a)}
 .rb{width:48px;height:48px;border-radius:50%;background:var(--panel);border:1px solid var(--line);font-size:20px;transition:.15s}.rb:hover{transform:scale(1.1);border-color:var(--a)}.rb.rep:hover{border-color:var(--bad)}
 .next{padding:0 30px;height:48px;border-radius:99px;font-weight:800;font-size:16px}
 #games{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;min-height:180px;text-align:center}
 #games h3{margin:0 0 8px}
 .row2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .gb{padding:10px 14px;border-radius:12px;background:var(--a);font-weight:600;margin:3px}.gb.sec{background:#ffffff14;font-weight:400;font-size:13px}.gb:disabled{opacity:.4}
-.board{display:grid;grid-template-columns:repeat(3,64px);gap:6px;justify-content:center;margin:8px 0}
-.cell{width:64px;height:64px;border-radius:12px;background:#ffffff12;font-size:30px}
 .mini{display:flex;gap:6px}.mini input{flex:1}.mini button{padding:0 18px;border-radius:12px}
 .modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:20;padding:16px}
 .sheet{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;width:100%;max-width:420px;max-height:80vh;display:flex;flex-direction:column;text-align:center}
@@ -59,18 +59,28 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
 #count{font-size:56px;font-weight:800}
 </style></head><body>
  
-<section id="home"><div class="hero">
+<section id="login" class="hidden"><div class="hero">
+  <div class="orb"><b>👋</b></div>
+  <div class="logo">We <i>Meet</i></div>
+  <p class="mu">Live video chat with someone new.<br>Sign in once. One account, one person.</p>
+  <div id="gbtn" style="display:flex;justify-content:center;margin:18px 0 8px;min-height:44px"></div>
+  <button class="big grad hidden" id="guest">Continue as guest (testing only)</button>
+  <p id="loginMsg" style="color:var(--bad);font-size:14px"></p>
+</div></section>
+ 
+<section id="home" class="hidden"><div class="hero">
   <div class="orb"><b>👋</b></div>
   <div class="logo">We <i>Meet</i></div>
   <p class="mu">Live video chat with someone new.</p>
   <span class="pill"><span class="dot"></span><span id="onlineHome">0</span> people online</span>
   <div style="margin-top:8px"><span class="pill" id="geo">📍 Detecting your location...</span></div>
   <div style="margin-top:8px"><span class="pill mu" id="conn">Connecting to server...</span></div>
+  <p class="mu" style="font-size:13px;margin:10px 0 0">Signed in as <b id="who"></b> · <a href="#" id="signout" style="color:var(--b)">Sign out</a></p>
   <div class="card">
     <label>Interests (optional, helps match you)</label>
     <div class="chips" id="chips"></div>
     <label class="rule" style="display:flex"><input type="checkbox" id="agree"><span>I am 18 or older. I will be respectful: no nudity, harassment or hate. My camera and mic stay on while I am here, and my country (detected from my connection) is shown to the person I meet.</span></label>
-    <button class="big grad" id="start" disabled>Start video chat</button>
+    <button class="big grad" id="start" disabled>Continue</button>
   </div>
 </div></section>
  
@@ -88,9 +98,11 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
     <div class="tile"><video id="local" autoplay playsinline muted></video><span class="tag">You</span><div class="toasts" id="tl"></div></div>
   </div>
   <div class="dock">
-    <button class="next grad" id="next">Next ➜</button>
+    <button class="next grad" id="next">Start</button>
+    <button class="stopb" id="stop" disabled>Stop</button>
+    <button class="iam" id="iam">I am ▾</button>
     <button class="rb" id="react" title="Reactions">😊</button><button class="rb" id="bulb" title="Icebreaker">💡</button>
-    <button class="rb rep" id="report" title="Report">⚠️</button><button class="rb" id="stop" title="Leave">✖</button>
+    <button class="rb rep" id="report" title="Report">⚠️</button>
   </div>
   <div id="games"></div>
   <form class="mini" id="chatForm"><input type="text" id="msg" placeholder="Type a message" maxlength="300" autocomplete="off"><button class="grad" type="submit">Send</button></form>
@@ -103,6 +115,13 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
   <button class="big" style="margin-top:10px;background:#ffffff14" id="closePick">Close</button>
 </div></div>
  
+<div class="modal hidden" id="iamM"><div class="sheet">
+  <h3 style="margin:0 0 6px">I am...</h3>
+  <p class="mu" style="font-size:13px">Only for our records. The person you meet will not see this.</p>
+  <div class="row2"><button class="gb" data-g="male">👨 Male</button><button class="gb" data-g="female">👩 Female</button><button class="gb" data-g="couple">👫 Couple</button></div>
+  <button class="gb sec" id="iamClose">Close</button>
+</div></div>
+ 
 <div class="modal hidden" id="away"><div class="sheet">
   <div style="font-size:42px">👀</div><h2 style="margin:6px 0">Are you there?</h2>
   <p class="mu">People want to see who they are talking to. Please show your camera.</p>
@@ -110,6 +129,7 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
   <button class="big grad" id="imHere">I am here</button>
 </div></div>
  
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 const $=s=>document.querySelector(s);
 const flag=c=>c==='ALL'?'🌍':String.fromCodePoint(...[...c].map(ch=>127397+ch.charCodeAt(0)));
@@ -119,35 +139,60 @@ const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ',SKIP='EU UN EZ AC CP DG EA IC TA XA XB QO Z
 const COUNTRIES=dn?[...L].flatMap(a=>[...L].map(b=>a+b)).filter(c=>!SKIP.includes(c)&&dn.of(c)!==c).map(c=>({code:c,name:dn.of(c)})):['KE','UG','TZ','ZA','NG','GH','US','GB','IN'].map(c=>({code:c,name:c}));
 const ICE_Q=["What is the best thing that happened to you this week?","If you could travel anywhere tomorrow, where?","What song is stuck in your head?","Which food could you eat every day?","What skill do you want to learn?","Tell me one thing that makes your country special."];
 const TOPICS=["Music","Football","Tech","Movies","Languages","Travel","Business","Gaming"];
-const WYR=[["Travel to the past","Travel to the future"],["Always be early","Always be late"],["Live by the beach","Live in the mountains"],["Be able to fly","Be invisible"],["Eat only pizza forever","Eat only rice forever"],["Know every language","Play every instrument"],["Have a pet dragon","Have a pet robot"],["No phone for a month","No music for a month"]];
-const GN={ttt:'Tic-Tac-Toe',rps:'Rock Paper Scissors',wyr:'Would You Rather'};
 let myId,pc,stream,mine=((navigator.language.split('-')[1]||'KE').toUpperCase()),want='ALL',stats={total:0,countries:{}},pend=[],picked=new Set(),ready,gotId=new Promise(r=>ready=r),es;
 let ice=[{urls:'stun:stun.l.google.com:19302'}],linked=false,game=null,inv=null,wait=null;
+let cfg={},token=null,email=null,gender=null,started=false,pendingStart=false;
+const api=(p,b)=>fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+const show=id=>['login','home','stage'].forEach(s=>$('#'+s).classList.toggle('hidden',s!==id));
 const post=(p,b={})=>fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:myId,...b})}).catch(()=>{});
 const sig=data=>post('/signal',{data});
  
 TOPICS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.textContent=t;b.onclick=()=>{picked.has(t)?picked.delete(t):picked.add(t);b.classList.toggle('on')};$('#chips').append(b)});
 $('#agree').onchange=e=>$('#start').disabled=!e.target.checked;
  
-// ---- server connection
-fetch('/config').then(r=>r.json()).then(j=>{if(j.iceServers)ice=j.iceServers}).catch(()=>{});
+// ---- sign-in and server connection
 const NOSERVER='Server not reachable. This site must run server.js (Node).';
 function conn(t,ok){$('#conn').textContent=t;$('#conn').style.color=ok?'var(--ok)':'var(--bad)'}
-function connect(){es=new EventSource('/events');es.onmessage=e=>handle(JSON.parse(e.data));es.onerror=()=>{conn(NOSERVER,false);idle('Cannot reach the server.')}}
-connect();
-setTimeout(()=>{if(!myId)conn(NOSERVER,false);if($('#geo').textContent.includes('Detecting'))$('#geo').textContent='📍 '+flag(mine)+' '+nameOf(mine)},7000);
+function stopMedia(){stream&&stream.getTracks().forEach(t=>t.stop());stream=null;clearInterval(watch)}
+function showLogin(msg,plain){stopMedia();started=false;show('login');$('#loginMsg').innerHTML=msg||'';if(plain){$('#gbtn').textContent='';return}
+ if(!cfg.googleClientId){$('#guest').classList.remove('hidden');return}
+ const t=setInterval(()=>{if(!window.google||!google.accounts)return;clearInterval(t);
+  google.accounts.id.initialize({client_id:cfg.googleClientId,callback:r=>doAuth({credential:r.credential})});
+  google.accounts.id.renderButton($('#gbtn'),{theme:'filled_blue',size:'large',shape:'pill',text:'continue_with'})},200)}
+async function doAuth(body){
+ const r=await api('/auth',body).catch(()=>null);
+ if(!r||!r.ok){$('#loginMsg').textContent=r&&r.status===403?'This account is temporarily banned.':'Sign-in failed. Please try again.';return}
+ afterLogin(await r.json());
+}
+function afterLogin(j){token=j.token;email=j.email;gender=j.gender;localStorage.setItem('wm_token',token);$('#who').textContent=email;show('home');updIam();connect()}
+$('#guest').onclick=()=>doAuth({guest:true});
+$('#signout').onclick=e=>{e.preventDefault();localStorage.removeItem('wm_token');location.reload()};
+function connect(){
+ es=new EventSource('/events?t='+encodeURIComponent(token));
+ es.onmessage=e=>handle(JSON.parse(e.data));
+ es.onerror=()=>{if(es.readyState===2){localStorage.removeItem('wm_token');showLogin('Your session ended. Please sign in again.')}else conn('Reconnecting...',false)};
+}
+(async()=>{
+ try{cfg=await (await fetch('/config')).json()}catch{show('login');$('#loginMsg').textContent=NOSERVER;return}
+ if(cfg.iceServers)ice=cfg.iceServers;
+ const t=localStorage.getItem('wm_token');
+ if(t){const r=await api('/me',{token:t}).catch(()=>null);if(r&&r.ok)return afterLogin({...(await r.json()),token:t})}
+ showLogin();
+})();
+setTimeout(()=>{if($('#geo').textContent.includes('Detecting'))$('#geo').textContent='📍 '+flag(mine)+' '+nameOf(mine)},8000);
 function handle(m){
- if(m.type==='hello'){myId=m.id;ready();conn('Connected to server',true);if(stream&&!$('#stage').classList.contains('hidden'))find()}
+ if(m.type==='hello'){myId=m.id;ready();conn('Connected to server',true);if(stream&&started)find()}
  else if(m.type==='geo'){mine=m.code;$('#geo').textContent='📍 '+flag(m.code)+' '+nameOf(m.code)}
  else if(m.type==='stats'){stats=m;$('#online').textContent=$('#onlineHome').textContent=m.total;if(!$('#picker').classList.contains('hidden'))renderList()}
  else if(m.type==='waiting')idle(want==='ALL'?'Looking for someone...':`Looking for someone from ${nameOf(want)}... (${stats.countries[want]||0} online there)`);
  else if(m.type==='matched'){idle('Connecting...');startPeer(m.initiator);if(m.peer){$('#peerTag').textContent=flag(m.peer)+' '+nameOf(m.peer);$('#peerTag').classList.remove('hidden')}}
  else if(m.type==='signal')onSig(m.data);
  else if(m.type==='chat')toast(m.text,'tr');
+ else if(m.type==='kicked'){es.close();closePeer(true);showLogin('You opened We Meet in another tab or device.<br><a href="javascript:location.reload()" style="color:var(--b)">Use it here instead</a>',true)}
  else if(m.type==='partner-left'){closePeer();find()}
  else if(m.type==='banned'){idle('You were temporarily banned after multiple reports.');es.close()}
 }
-function find(){post('/find',{interests:[...picked].map(s=>s.toLowerCase()),country:mine,want})}
+function find(){if(!started)return;post('/find',{interests:[...picked].map(s=>s.toLowerCase()),country:mine,want})}
 function idle(t){$('#idle').classList.remove('hidden');$('#idleText').textContent=t}
  
 // ---- WebRTC
@@ -186,77 +231,58 @@ $('#iceSend').onclick=()=>{const t=$('#iceQ').textContent;toast(t,'tl');post('/c
  
 // ---- games (played over the same private channel as video setup)
 const btn=(a,v,t,c='')=>`<button class="gb ${c}" data-a="${a}" data-v="${v}">${t}</button>`;
-const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 function renderGames(){
- let h='<h3>🎮 Play together</h3>';
- if(!linked)h+='<p class="mu">Connect with someone to play games with them.</p>';
- else if(inv)h+=`<p>They want to play <b>${GN[inv]}</b>!</p>`+btn('accept','','Accept ✅')+btn('decline','','No thanks','sec');
- else if(wait)h+=`<p class="mu">Waiting for them to accept ${GN[wait]}...</p>`;
- else if(!game)h+='<p class="mu">Pick a game and invite them:</p><div class="row2">'+btn('invite','ttt','❌⭕ Tic-Tac-Toe')+btn('invite','rps','✊✋✌️ Rock Paper Scissors')+btn('invite','wyr','🤔 Would You Rather')+'</div>';
+ let h='<h3>✊ Rock Paper Scissors</h3>';
+ if(!linked)h+='<p class="mu">Connect with someone, then challenge them to a quick round.</p>';
+ else if(inv)h+='<p>They challenged you!</p>'+btn('accept','','Accept ✅')+btn('decline','','No thanks','sec');
+ else if(wait)h+='<p class="mu">Waiting for them to accept...</p>';
+ else if(!game)h+=btn('invite','','Challenge them ✊');
  else h+=gameView()+'<div>'+btn('end','','Close game','sec')+'</div>';
  $('#games').innerHTML=h;
 }
 function gameView(){
- const g=game;
- if(g.g==='ttt'){const w=g.win;
-  const s=w==='draw'?'It is a draw!':w?(w===g.me?'You win! 🎉':'They win!'):(g.turn===g.me?'Your turn ('+g.me+')':'Their turn...');
-  return `<p><b>${s}</b></p><div class="board">`+g.b.map((c,i)=>`<button class="cell" data-a="cell" data-v="${i}">${c}</button>`).join('')+'</div>'+(w?btn('again','','Play again'):'')}
- if(g.g==='rps'){const E={r:'✊',p:'✋',s:'✌️'};
-  if(g.mine&&g.theirs){const r=g.mine===g.theirs?'Draw!':({r:'s',p:'r',s:'p'}[g.mine]===g.theirs?'You win! 🎉':'They win!');
-   return `<p style="font-size:34px;margin:6px">${E[g.mine]} vs ${E[g.theirs]}</p><p><b>${r}</b></p>`+btn('again','','Play again')}
-  return `<p>${g.mine?'Waiting for them...':'Choose one:'}</p><div class="row2">`+['r','p','s'].map(k=>`<button class="gb" ${g.mine?'disabled':''} data-a="rps" data-v="${k}">${E[k]}</button>`).join('')+'</div>'}
- if(g.q===null)return '<p class="mu">Waiting for the first question...</p>';
- const q=WYR[g.q];
- if(g.mine&&g.theirs)return `<p><b>${q[0]}</b> or <b>${q[1]}</b>?</p><p>You: <b>${q[g.mine==='a'?0:1]}</b><br>They: <b>${q[g.theirs==='a'?0:1]}</b></p><p>${g.mine===g.theirs?'You agree! 🤝':'Different tastes! 😄'}</p>`+btn('nextq','','Next question ➜');
- return `<p><b>Would you rather...</b></p><div class="row2">`+['a','b'].map((k,i)=>`<button class="gb" ${g.mine?'disabled':''} data-a="wyr" data-v="${k}">${q[i]}</button>`).join('')+'</div>'+(g.mine?'<p class="mu">Waiting for them...</p>':'');
+ const g=game,E={r:'✊',p:'✋',s:'✌️'};
+ if(g.mine&&g.theirs){const r=g.mine===g.theirs?'Draw!':({r:'s',p:'r',s:'p'}[g.mine]===g.theirs?'You win! 🎉':'They win!');
+  return `<p style="font-size:34px;margin:6px">${E[g.mine]} vs ${E[g.theirs]}</p><p><b>${r}</b></p>`+btn('again','','Play again')}
+ return `<p>${g.mine?'Waiting for them...':'Choose one:'}</p><div class="row2">`+['r','p','s'].map(k=>`<button class="gb" ${g.mine?'disabled':''} data-a="rps" data-v="${k}">${E[k]}</button>`).join('')+'</div>';
 }
-function startGame(t,inviter){
- wait=inv=null;
- if(t==='ttt')game={g:t,b:Array(9).fill(''),me:inviter?'X':'O',turn:'X',win:null};
- else if(t==='rps')game={g:t,mine:null,theirs:null,theirPicked:false,sent:false};
- else{game={g:t,q:null,mine:null,theirs:null};if(inviter)newQ()}
- renderGames();
-}
-function newQ(){const i=Math.floor(Math.random()*WYR.length);game.q=i;game.mine=game.theirs=null;sig({game:{t:'q',i}})}
-function tttMove(i,local){
- const g=game;if(g.b[i]||g.win)return;if(local&&g.turn!==g.me)return;
- const mk=local?g.me:(g.me==='X'?'O':'X');g.b[i]=mk;
- if(LINES.some(l=>l.every(k=>g.b[k]===mk)))g.win=mk;else if(g.b.every(Boolean))g.win='draw';else g.turn=mk==='X'?'O':'X';
- if(local)sig({game:{t:'move',i}});renderGames();
-}
+function startGame(){wait=inv=null;game={mine:null,theirs:null,theirPicked:false,sent:false};renderGames()}
 function reveal(){const g=game;if(g.mine&&g.theirPicked&&!g.sent){g.sent=true;sig({game:{t:'reveal',v:g.mine}})}}
-function resetGame(){const g=game;if(!g)return;if(g.g==='ttt'){g.b=Array(9).fill('');g.turn='X';g.win=null}else{g.mine=g.theirs=null;g.theirPicked=g.sent=false}renderGames()}
+function resetGame(){const g=game;if(!g)return;g.mine=g.theirs=null;g.theirPicked=g.sent=false;renderGames()}
 function onGame(m){
- if(m.t==='invite'){if(!game&&!wait){inv=m.g;renderGames()}return}
- if(m.t==='accept'){startGame(m.g,true);return}
+ if(m.t==='invite'){if(!game&&!wait){inv=1;renderGames()}return}
+ if(m.t==='accept'){startGame();return}
  if(m.t==='decline'){wait=null;toast('They said no thanks','tr');renderGames();return}
  if(m.t==='end'){game=null;renderGames();return}
  const g=game;if(!g)return;
- if(m.t==='move')tttMove(m.i,false);
- else if(m.t==='again')resetGame();
+ if(m.t==='again')resetGame();
  else if(m.t==='picked'){g.theirPicked=true;reveal()}
  else if(m.t==='reveal'){g.theirs=m.v;renderGames()}
- else if(m.t==='q'){g.q=m.i;g.mine=g.theirs=null;renderGames()}
- else if(m.t==='ans'){g.theirs=m.v;renderGames()}
 }
 $('#games').onclick=e=>{
  const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,v=b.dataset.v;
- if(a==='invite'){wait=v;sig({game:{t:'invite',g:v}});renderGames()}
- else if(a==='accept'){const t=inv;sig({game:{t:'accept',g:t}});startGame(t,false)}
+ if(a==='invite'){wait=1;sig({game:{t:'invite'}});renderGames()}
+ else if(a==='accept'){sig({game:{t:'accept'}});startGame()}
  else if(a==='decline'){inv=null;sig({game:{t:'decline'}});renderGames()}
  else if(a==='end'){game=null;sig({game:{t:'end'}});renderGames()}
- else if(a==='cell')tttMove(+v,true);
  else if(a==='again'){sig({game:{t:'again'}});resetGame()}
  else if(a==='rps'){if(!game.mine){game.mine=v;sig({game:{t:'picked'}});reveal();renderGames()}}
- else if(a==='wyr'){game.mine=v;sig({game:{t:'ans',v}});renderGames()}
- else if(a==='nextq'){newQ();renderGames()}
 };
  
 // ---- controls
-$('#next').onclick=()=>{closePeer();find()};
-$('#report').onclick=()=>{const r=prompt('What happened? (nudity, harassment, underage, other)');if(r===null)return;closePeer();post('/report',{reason:r});find()};
-$('#stop').onclick=leaveAll;
-function leaveAll(){closePeer();post('/stop');stream&&stream.getTracks().forEach(t=>t.stop());clearInterval(watch);closeAway();$('#stage').classList.add('hidden');$('#home').classList.remove('hidden')}
+const label=()=>{$('#next').textContent=started?'Next ➜':'Start';$('#stop').disabled=!started};
+function startMeeting(){started=true;label();idle('Looking for someone...');find()}
+$('#next').onclick=()=>{
+ if(!gender){pendingStart=true;$('#iamM').classList.remove('hidden');return}
+ if(!started)startMeeting();else{closePeer();find()}
+};
+$('#stop').onclick=()=>{started=false;closePeer();post('/stop');idle('Press Start to meet someone');label()};
+$('#report').onclick=()=>{if(!linked)return;const r=prompt('What happened? (nudity, harassment, underage, other)');if(r===null)return;closePeer();post('/report',{reason:r});find()};
+const updIam=()=>$('#iam').textContent='I am'+(gender?': '+gender[0].toUpperCase()+gender.slice(1):'')+' ▾';
+$('#iam').onclick=()=>$('#iamM').classList.remove('hidden');
+$('#iamClose').onclick=()=>{pendingStart=false;$('#iamM').classList.add('hidden')};
+$('#iamM').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;gender=b.dataset.g;post('/gender',{gender});updIam();$('#iamM').classList.add('hidden');if(pendingStart){pendingStart=false;startMeeting()}};
+function leaveAll(){closePeer();post('/stop');closeAway();started=false;stopMedia();show('home')}
 async function getMedia(){
  if(!navigator.mediaDevices||!window.isSecureContext)throw{name:'Insecure'};
  try{return await navigator.mediaDevices.getUserMedia({video:true,audio:true})}
@@ -266,9 +292,7 @@ const HELP={Insecure:'Open this site with https:// (secure link). Browsers block
 $('#start').onclick=async()=>{
  try{stream=await getMedia()}catch(e){return alert((HELP[e.name]||'Could not start the camera.')+' ('+(e.name||'error')+')')}
  $('#local').srcObject=stream;$('#local').play().catch(()=>{});
- $('#home').classList.add('hidden');$('#stage').classList.remove('hidden');
- chip();renderGames();idle(myId?'Looking for someone...':'Connecting to server...');startWatch();
- await gotId;find();
+ show('stage');started=false;label();chip();renderGames();idle('Press Start to meet someone');startWatch();
 };
  
 // ---- country picker
@@ -279,7 +303,7 @@ function renderList(){
  $('#list').innerHTML='';
  rows.forEach(c=>{const r=document.createElement('div');r.className='row'+(c.code===want?' sel':'');
   r.innerHTML=`<span class="f">${flag(c.code)}</span><span>${c.name}</span><em>${c.code==='ALL'?stats.total:n(c.code)} online</em>`;
-  r.onclick=()=>{want=c.code;chip();$('#picker').classList.add('hidden');closePeer();find()};$('#list').append(r)});
+  r.onclick=()=>{want=c.code;chip();$('#picker').classList.add('hidden');if(started){closePeer();find()}};$('#list').append(r)});
 }
 $('#countryChip').onclick=()=>{$('#q').value='';renderList();$('#picker').classList.remove('hidden')};
 $('#closePick').onclick=()=>$('#picker').classList.add('hidden');$('#q').oninput=renderList;
@@ -301,4 +325,3 @@ function closeAway(){clearInterval(cd);off=0;$('#away').classList.add('hidden')}
 $('#imHere').onclick=()=>{off=0};
 addEventListener('beforeunload',()=>{myId&&navigator.sendBeacon('/stop',new Blob([JSON.stringify({id:myId})],{type:'application/json'}))});
 </script></body></html>
- 
