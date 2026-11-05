@@ -62,6 +62,8 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
  .dock,.mini{height:48px}
  .stopb,.iam{padding:0 14px}
 }
+.fl{vertical-align:middle;border-radius:2px;box-shadow:0 0 0 1px #0003}
+.toast.mine{align-self:flex-end;background:#fff;color:var(--a);font-weight:600}
 </style></head><body>
 
 <section id="login" class="hidden"><div class="hero">
@@ -105,7 +107,7 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
       </div>
     </div>
     <div class="col">
-      <div class="tile me"><video id="local" autoplay playsinline muted></video><span class="tag">You</span><div class="toasts" id="tl"></div></div>
+      <div class="tile me"><video id="local" autoplay playsinline muted></video><span class="tag">You</span></div>
       <form class="mini" id="chatForm"><input type="text" id="msg" placeholder="Type a message" maxlength="300" autocomplete="off"><button class="grad" type="submit">Send</button></form>
     </div>
   </div>
@@ -143,16 +145,15 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
 </div></div>
 
 <div class="modal hidden" id="away"><div class="sheet">
-  <div style="font-size:42px">👀</div><h2 style="margin:6px 0">Are you there?</h2>
-  <p class="mu">People want to see who they are talking to. Please show your camera.</p>
+  <div style="font-size:42px">👀</div><h2 style="margin:6px 0">Are you still there?</h2>
+  <p class="mu">Chat users want to see who they are talking to. Please make yourself visible so you can be seen.</p>
   <div id="count">30</div>
-  <button class="big grad" id="imHere">I am here</button>
 </div></div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 const $=s=>document.querySelector(s);
-const flag=c=>c==='ALL'?'🌍':String.fromCodePoint(...[...c].map(ch=>127397+ch.charCodeAt(0)));
+const flag=c=>{if(c==='ALL')return'🌍';const k=c.toLowerCase();return `<img class="fl" src="https://flagcdn.com/24x18/${k}.png" srcset="https://flagcdn.com/48x36/${k}.png 2x" width="24" height="18" alt="${c}">`};
 const dn=(()=>{try{return new Intl.DisplayNames(['en'],{type:'region'})}catch{return null}})();
 const nameOf=c=>{if(c==='ALL')return'All countries';try{return dn?dn.of(c):c}catch{return c}};
 const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ',SKIP='EU UN EZ AC CP DG EA IC TA XA XB QO ZZ'.split(' ');
@@ -203,7 +204,7 @@ function handle(m){
  else if(m.type==='geo'){mine=m.code}
  else if(m.type==='stats'){stats=m;$('#online').textContent=$('#onlineHome').textContent=m.total;if(!$('#picker').classList.contains('hidden'))renderList()}
  else if(m.type==='waiting')idle(want==='ALL'?'Looking for someone...':`Looking for someone from ${nameOf(want)}... (${stats.countries[want]||0} online there)`);
- else if(m.type==='matched'){idle('Connecting...');startPeer(m.initiator);if(m.peer){$('#peerTag').textContent=flag(m.peer)+' '+nameOf(m.peer);$('#peerTag').classList.remove('hidden')}}
+ else if(m.type==='matched'){idle('Connecting...');startPeer(m.initiator);if(m.peer&&/^[A-Z]{2}$/.test(m.peer)){$('#peerTag').innerHTML=flag(m.peer)+' '+nameOf(m.peer);$('#peerTag').classList.remove('hidden')}}
  else if(m.type==='signal')onSig(m.data);
  else if(m.type==='chat')toast(m.text,'tr');
  else if(m.type==='kicked'){es.close();closePeer(true);showLogin('You opened We Meet in another tab or device.<br><a href="javascript:location.reload()" style="color:var(--b)">Use it here instead</a>',true)}
@@ -236,8 +237,8 @@ function closePeer(keep){
 }
 
 // ---- small chat
-function toast(t,box){const d=document.createElement('div');d.className='toast';d.textContent=t;$('#'+box).append(d);setTimeout(()=>d.remove(),7000)}
-$('#chatForm').onsubmit=e=>{e.preventDefault();const t=$('#msg').value.trim();if(!t)return;toast(t,'tl');post('/chat',{text:t});$('#msg').value=''};
+function toast(t,box,mine){const d=document.createElement('div');d.className='toast'+(mine?' mine':'');d.textContent=t;$('#'+box).append(d);setTimeout(()=>d.remove(),7000)}
+$('#chatForm').onsubmit=e=>{e.preventDefault();const t=$('#msg').value.trim();if(!t)return;if(linked)toast(t,'tr',true);post('/chat',{text:t});$('#msg').value=''};
 
 // ---- controls
 const label=()=>{$('#next').textContent=started?'Next ➜':'Start';$('#stop').disabled=!started};
@@ -246,7 +247,7 @@ $('#next').onclick=()=>{
  if(!gender){pendingStart=true;$('#iamM').classList.remove('hidden');return}
  if(!started)startMeeting();else{closePeer();find()}
 };
-$('#stop').onclick=()=>{started=false;closePeer();post('/stop');idle('Press Start to meet someone');label()};
+$('#stop').onclick=()=>{started=false;closeAway();closePeer();post('/stop');idle('Press Start to meet someone');label()};
 $('#flag').onclick=()=>{if(linked)$('#repM').classList.remove('hidden')};
 $('#repClose').onclick=()=>$('#repM').classList.add('hidden');
 $('#repM').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;$('#repM').classList.add('hidden');closePeer();post('/report',{reason:b.dataset.r});find();toast('Thanks, your report was sent','tr')};
@@ -263,12 +264,12 @@ async function getMedia(){
 const HELP={Insecure:'Open this site with https:// (secure link). Browsers block the camera on http.',NotAllowedError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',SecurityError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',NotFoundError:'No camera was found on this device.',NotReadableError:'Your camera is being used by another app or browser tab. Close it and try again.'};
 $('#start').onclick=async()=>{
  try{stream=await getMedia()}catch(e){return alert((HELP[e.name]||'Could not start the camera.')+' ('+(e.name||'error')+')')}
- $('#local').srcObject=stream;$('#local').play().catch(()=>{});
+ loadFace();$('#local').srcObject=stream;$('#local').play().catch(()=>{});
  show('stage');started=false;label();chip();idle('Press Start to meet someone');startWatch();
 };
 
 // ---- country picker
-const chip=()=>$('#countryChip').textContent=`${flag(want)} ${nameOf(want)} ▾`;
+const chip=()=>$('#countryChip').innerHTML=`${flag(want)} ${nameOf(want)} ▾`;
 function renderList(){
  const q=$('#q').value.toLowerCase(),n=c=>stats.countries[c]||0;
  const rows=[{code:'ALL',name:'All countries'},...COUNTRIES.slice().sort((a,b)=>n(b.code)-n(a.code)||a.name.localeCompare(b.name))].filter(c=>c.name.toLowerCase().includes(q));
@@ -280,20 +281,36 @@ function renderList(){
 $('#countryChip').onclick=()=>{$('#q').value='';renderList();$('#picker').classList.remove('hidden')};
 $('#closePick').onclick=()=>$('#picker').classList.add('hidden');$('#q').oninput=renderList;
 
-// ---- camera and mic stay on; if the camera is covered for 60s, ask the user to show themselves
+// ---- face check: camera and mic stay on; no face for 15 seconds while live -> "Are you still there?" (30s countdown)
+let faceDet=null;
+async function loadFace(){
+ try{
+  const V='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+  const m=await import(V+'/vision_bundle.mjs');
+  const fs=await m.FilesetResolver.forVisionTasks(V+'/wasm');
+  faceDet=await m.FaceDetector.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite'},runningMode:'VIDEO',minDetectionConfidence:0.5});
+ }catch(e){faceDet=null}
+}
 const cv=document.createElement('canvas');cv.width=cv.height=16;const cx=cv.getContext('2d',{willReadFrequently:true});
 function camOk(){const t=stream&&stream.getVideoTracks()[0];if(!t||t.readyState!=='live'||t.muted)return false;
  try{cx.drawImage($('#local'),0,0,16,16);const d=cx.getImageData(0,0,16,16).data;let s=0;for(let i=0;i<d.length;i+=4)s+=d[i]+d[i+1]+d[i+2];return s/(d.length/4*3)>12}catch{return true}}
+function seen(){
+ const t=stream&&stream.getVideoTracks()[0];if(!t||t.readyState!=='live'||t.muted)return false;
+ const v=$('#local');
+ if(faceDet&&v.readyState>=2&&v.videoWidth){try{return faceDet.detectForVideo(v,performance.now()).detections.length>0}catch{}}
+ return camOk(); // if the face model could not load, at least check the camera is not covered
+}
 let watch,off=0,left=30,cd;
 function startWatch(){off=0;clearInterval(watch);watch=setInterval(()=>{
+ if(!stream)return;
  stream.getTracks().forEach(t=>{if(!t.enabled)t.enabled=true});
- const ok=camOk();off=ok?0:off+2;
+ if(!started||document.hidden){return}
+ const ok=seen();off=ok?0:off+1;
  if(ok&&!$('#away').classList.contains('hidden'))closeAway();
- if(off>=60&&$('#away').classList.contains('hidden'))openAway();
-},2000)}
+ if(off>=15&&$('#away').classList.contains('hidden'))openAway();
+},1000)}
 function openAway(){left=30;$('#count').textContent=left;$('#away').classList.remove('hidden');
- cd=setInterval(()=>{$('#count').textContent=--left;if(left<=0){leaveAll();alert('You were disconnected because your camera stayed off.')}},1000)}
+ cd=setInterval(()=>{$('#count').textContent=--left;if(left<=0){leaveAll();alert('You were disconnected because your face was not visible.')}},1000)}
 function closeAway(){clearInterval(cd);off=0;$('#away').classList.add('hidden')}
-$('#imHere').onclick=()=>{off=0};
 addEventListener('beforeunload',()=>{myId&&navigator.sendBeacon('/stop',new Blob([JSON.stringify({id:myId})],{type:'application/json'}))});
 </script></body></html>
