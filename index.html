@@ -59,11 +59,10 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
 #count{font-size:56px;font-weight:800}
 .flagb{position:absolute;right:10px;top:10px;z-index:9;width:40px;height:40px;border-radius:50%;background:#000a;border:1px solid #fff3;font-size:18px}.flagb:hover{border-color:var(--bad)}
 @media(max-width:700px){
- #stage{padding:8px;gap:8px}
- .tiles{display:block;position:relative;height:calc(100vh - 260px);height:calc(100dvh - 260px);min-height:340px}
- .tile:first-child{height:100%;aspect-ratio:auto}
- .tile.me{position:absolute;right:10px;bottom:10px;width:30%;aspect-ratio:3/4;z-index:8;border:2px solid #fff4;box-shadow:0 6px 20px #000a}
- .tile.me .tag,.tile.me .toasts{display:none}
+ body.instage{overflow:hidden}
+ #stage{height:100vh;height:100dvh;padding:6px;gap:6px;overflow:hidden}
+ .tiles{flex:1;min-height:0;grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:6px}
+ .tile{aspect-ratio:auto;height:100%;min-height:0}
  .dock{padding:6px;gap:6px}.next{flex:1;padding:0 16px}
 }
 </style></head><body>
@@ -111,7 +110,6 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
     <button class="iam" id="iam">I am ▾</button>
 
   </div>
-  <div id="games"></div>
   <form class="mini" id="chatForm"><input type="text" id="msg" placeholder="Type a message" maxlength="300" autocomplete="off"><button class="grad" type="submit">Send</button></form>
 </section>
 
@@ -153,10 +151,10 @@ const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ',SKIP='EU UN EZ AC CP DG EA IC TA XA XB QO Z
 const COUNTRIES=dn?[...L].flatMap(a=>[...L].map(b=>a+b)).filter(c=>!SKIP.includes(c)&&dn.of(c)!==c).map(c=>({code:c,name:dn.of(c)})):['KE','UG','TZ','ZA','NG','GH','US','GB','IN'].map(c=>({code:c,name:c}));
 const TOPICS=["Music","Football","Tech","Movies","Languages","Travel","Business","Gaming"];
 let myId,pc,stream,mine=((navigator.language.split('-')[1]||'KE').toUpperCase()),want='ALL',stats={total:0,countries:{}},pend=[],picked=new Set(),ready,gotId=new Promise(r=>ready=r),es;
-let ice=[{urls:'stun:stun.l.google.com:19302'}],linked=false,game=null,inv=null,wait=null;
+let ice=[{urls:'stun:stun.l.google.com:19302'}],linked=false;
 let cfg={},token=null,email=null,gender=null,started=false,pendingStart=false;
 const api=(p,b)=>fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
-const show=id=>['login','home','stage'].forEach(s=>$('#'+s).classList.toggle('hidden',s!==id));
+const show=id=>{['login','home','stage'].forEach(s=>$('#'+s).classList.toggle('hidden',s!==id));document.body.classList.toggle('instage',id==='stage')};
 const post=(p,b={})=>fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:myId,...b})}).catch(()=>{});
 const sig=data=>post('/signal',{data});
 
@@ -213,13 +211,12 @@ async function startPeer(init){
  closePeer(true);
  pc=new RTCPeerConnection({iceServers:ice});
  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
- pc.ontrack=e=>{$('#remote').srcObject=e.streams[0];$('#idle').classList.add('hidden');linked=true;$('#flag').classList.remove('hidden');renderGames()};
+ pc.ontrack=e=>{$('#remote').srcObject=e.streams[0];$('#idle').classList.add('hidden');linked=true;$('#flag').classList.remove('hidden')};
  pc.onicecandidate=e=>e.candidate&&sig({candidate:e.candidate});
  pc.onconnectionstatechange=()=>{if(pc&&pc.connectionState==='failed')idle('Could not connect. Press Next.')};
  if(init){const o=await pc.createOffer();await pc.setLocalDescription(o);sig({sdp:pc.localDescription})}
 }
 async function onSig(d){
- if(d.game)return onGame(d.game);
  if(!pc)return;
  if(d.sdp){await pc.setRemoteDescription(d.sdp);for(const c of pend)await pc.addIceCandidate(c);pend=[];
   if(d.sdp.type==='offer'){const a=await pc.createAnswer();await pc.setLocalDescription(a);sig({sdp:pc.localDescription})}}
@@ -227,53 +224,13 @@ async function onSig(d){
 }
 function closePeer(keep){
  if(pc){pc.close();pc=null}pend=[];$('#remote').srcObject=null;
- linked=false;game=inv=wait=null;renderGames();$('#flag').classList.add('hidden');$('#repM').classList.add('hidden');$('#peerTag').classList.add('hidden');
+ linked=false;$('#flag').classList.add('hidden');$('#repM').classList.add('hidden');$('#peerTag').classList.add('hidden');
  if(!keep){$('#tr').textContent='';idle('Looking for someone...')}
 }
 
 // ---- small chat
 function toast(t,box){const d=document.createElement('div');d.className='toast';d.textContent=t;$('#'+box).append(d);setTimeout(()=>d.remove(),7000)}
-$('#chatForm').onsubmit=e=>{e.preventDefault();const t=$('#msg').value.trim();if(!t)return;toast(t,'tl');if(innerWidth<=700)toast('You: '+t,'tr');post('/chat',{text:t});$('#msg').value=''};
-
-// ---- games (played over the same private channel as video setup)
-const btn=(a,v,t,c='')=>`<button class="gb ${c}" data-a="${a}" data-v="${v}">${t}</button>`;
-function renderGames(){
- let h='<h3>✊ Rock Paper Scissors</h3>';
- if(!linked)h+='<p class="mu">Connect with someone, then challenge them to a quick round.</p>';
- else if(inv)h+='<p>They challenged you!</p>'+btn('accept','','Accept ✅')+btn('decline','','No thanks','sec');
- else if(wait)h+='<p class="mu">Waiting for them to accept...</p>';
- else if(!game)h+=btn('invite','','Challenge them ✊');
- else h+=gameView()+'<div>'+btn('end','','Close game','sec')+'</div>';
- $('#games').innerHTML=h;
-}
-function gameView(){
- const g=game,E={r:'✊',p:'✋',s:'✌️'};
- if(g.mine&&g.theirs){const r=g.mine===g.theirs?'Draw!':({r:'s',p:'r',s:'p'}[g.mine]===g.theirs?'You win! 🎉':'They win!');
-  return `<p style="font-size:34px;margin:6px">${E[g.mine]} vs ${E[g.theirs]}</p><p><b>${r}</b></p>`+btn('again','','Play again')}
- return `<p>${g.mine?'Waiting for them...':'Choose one:'}</p><div class="row2">`+['r','p','s'].map(k=>`<button class="gb" ${g.mine?'disabled':''} data-a="rps" data-v="${k}">${E[k]}</button>`).join('')+'</div>';
-}
-function startGame(){wait=inv=null;game={mine:null,theirs:null,theirPicked:false,sent:false};renderGames()}
-function reveal(){const g=game;if(g.mine&&g.theirPicked&&!g.sent){g.sent=true;sig({game:{t:'reveal',v:g.mine}})}}
-function resetGame(){const g=game;if(!g)return;g.mine=g.theirs=null;g.theirPicked=g.sent=false;renderGames()}
-function onGame(m){
- if(m.t==='invite'){if(!game&&!wait){inv=1;renderGames()}return}
- if(m.t==='accept'){startGame();return}
- if(m.t==='decline'){wait=null;toast('They said no thanks','tr');renderGames();return}
- if(m.t==='end'){game=null;renderGames();return}
- const g=game;if(!g)return;
- if(m.t==='again')resetGame();
- else if(m.t==='picked'){g.theirPicked=true;reveal()}
- else if(m.t==='reveal'){g.theirs=m.v;renderGames()}
-}
-$('#games').onclick=e=>{
- const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,v=b.dataset.v;
- if(a==='invite'){wait=1;sig({game:{t:'invite'}});renderGames()}
- else if(a==='accept'){sig({game:{t:'accept'}});startGame()}
- else if(a==='decline'){inv=null;sig({game:{t:'decline'}});renderGames()}
- else if(a==='end'){game=null;sig({game:{t:'end'}});renderGames()}
- else if(a==='again'){sig({game:{t:'again'}});resetGame()}
- else if(a==='rps'){if(!game.mine){game.mine=v;sig({game:{t:'picked'}});reveal();renderGames()}}
-};
+$('#chatForm').onsubmit=e=>{e.preventDefault();const t=$('#msg').value.trim();if(!t)return;toast(t,'tl');post('/chat',{text:t});$('#msg').value=''};
 
 // ---- controls
 const label=()=>{$('#next').textContent=started?'Next ➜':'Start';$('#stop').disabled=!started};
@@ -300,7 +257,7 @@ const HELP={Insecure:'Open this site with https:// (secure link). Browsers block
 $('#start').onclick=async()=>{
  try{stream=await getMedia()}catch(e){return alert((HELP[e.name]||'Could not start the camera.')+' ('+(e.name||'error')+')')}
  $('#local').srcObject=stream;$('#local').play().catch(()=>{});
- show('stage');started=false;label();chip();renderGames();idle('Press Start to meet someone');startWatch();
+ show('stage');started=false;label();chip();idle('Press Start to meet someone');startWatch();
 };
 
 // ---- country picker
