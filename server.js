@@ -1,26 +1,26 @@
-
 // We Meet - signaling + matchmaking server. Zero dependencies (Node 16+).
 // Video/audio flows peer-to-peer via WebRTC; this server only pairs people and relays setup messages.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
- 
+
 const PORT = process.env.PORT || 3000;
 const REPORT_LOG = path.join(__dirname, 'reports.log');
 const BAN_AFTER_REPORTS = 3;                 // reports against one IP before a temporary ban
 const BAN_MS = 24 * 60 * 60 * 1000;          // 24 hours
 const RATE_LIMIT = { windowMs: 10000, max: 200 };
- 
+const PAGE_LOCATIONS = ['public', 'Public', '.'].map(d => path.join(__dirname, d, 'index.html'));
+
 const clients = new Map();   // id -> { id, res, ip, partner, interests, blocked:Set, hits:[] }
 const reportsByIp = new Map();
 const bans = new Map();      // ip -> until timestamp
 let queue = [];
- 
+
 const getIp = req => (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 const isBanned = ip => (bans.get(ip) || 0) > Date.now();
 const send = (c, obj) => { if (c && !c.res.writableEnded) c.res.write('data: ' + JSON.stringify(obj) + '\n\n'); };
- 
+
 function readBody(req) {
   return new Promise((resolve, reject) => {
     let d = '';
@@ -29,7 +29,7 @@ function readBody(req) {
     req.on('error', reject);
   });
 }
- 
+
 function leave(c) {
   if (c.partner) {
     const p = clients.get(c.partner);
@@ -38,7 +38,7 @@ function leave(c) {
   }
   queue = queue.filter(i => i !== c.id);
 }
- 
+
 function enqueue(c, interests, country, want) {
   leave(c);
   c.interests = interests; c.country = country; c.want = want;
@@ -56,7 +56,7 @@ function enqueue(c, interests, country, want) {
     send(c, { type: 'waiting' });
   }
 }
- 
+
 function logReport(reporter, reported, reason) {
   const line = JSON.stringify({ time: new Date().toISOString(), reporter: reporter.id, reported: reported.id, reason: String(reason || '').slice(0, 200) });
   fs.appendFile(REPORT_LOG, line + '\n', () => {});
@@ -69,28 +69,33 @@ function logReport(reporter, reported, reason) {
     if (!reported.res.writableEnded) reported.res.end();
   }
 }
- 
+
 const cleanInterests = arr => (Array.isArray(arr) ? arr : []).slice(0, 5)
   .map(s => String(s).toLowerCase().trim().slice(0, 20)).filter(Boolean);
- 
+
 const server = http.createServer(async (req, res) => {
   const ip = getIp(req);
- 
+
   if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
-    return fs.readFile(path.join(__dirname, 'public', 'index.html'), (e, buf) => {
-      if (e) { res.writeHead(500); return res.end('Missing public/index.html'); }
+    const file = PAGE_LOCATIONS.find(f => fs.existsSync(f));
+    if (!file) {
+      res.writeHead(500);
+      return res.end('index.html not found. Put it next to server.js or inside a folder named public.');
+    }
+    return fs.readFile(file, (e, buf) => {
+      if (e) { res.writeHead(500); return res.end('Could not read index.html'); }
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(buf);
     });
   }
- 
+
   if (req.method === 'GET' && req.url === '/config') {
     let iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
     try { if (process.env.ICE_SERVERS) iceServers = JSON.parse(process.env.ICE_SERVERS); } catch {}
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ iceServers }));
   }
- 
+
   if (req.method === 'GET' && req.url === '/events') {
     if (isBanned(ip)) { res.writeHead(403); return res.end('Temporarily banned'); }
     res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive', 'X-Accel-Buffering': 'no' });
@@ -102,7 +107,7 @@ const server = http.createServer(async (req, res) => {
     req.on('close', () => { clearInterval(ka); leave(c); clients.delete(id); });
     return;
   }
- 
+
   if (req.method === 'POST') {
     let body;
     try { body = await readBody(req); } catch { res.writeHead(413); return res.end(); }
@@ -111,7 +116,7 @@ const server = http.createServer(async (req, res) => {
     const now = Date.now();
     c.hits = c.hits.filter(t => now - t < RATE_LIMIT.windowMs); c.hits.push(now);
     if (c.hits.length > RATE_LIMIT.max) { res.writeHead(429); return res.end(); }
- 
+
     const partner = c.partner ? clients.get(c.partner) : null;
     switch (req.url) {
       case '/find': {
@@ -128,15 +133,15 @@ const server = http.createServer(async (req, res) => {
     }
     res.writeHead(204); return res.end();
   }
- 
+
   res.writeHead(404); res.end();
 });
- 
+
 // Live stats: users online, and how many per country
 setInterval(() => {
   const countries = {};
   clients.forEach(c => { if (c.country) countries[c.country] = (countries[c.country] || 0) + 1; });
   clients.forEach(c => send(c, { type: 'stats', total: clients.size, countries }));
 }, 3000);
- 
+
 server.listen(PORT, () => console.log('We Meet running on http://localhost:' + PORT));
