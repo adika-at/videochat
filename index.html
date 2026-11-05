@@ -6,47 +6,52 @@
 :root{--bg:#0d0b1a;--panel:#171433;--line:#2b2755;--fg:#f4f2ff;--mute:#9b97c4;--a:#7c5cff;--b:#ff5c9d;--ok:#2dd4a0;--bad:#ff4d5e;color-scheme:dark}
 *{box-sizing:border-box}html,body{height:100%}
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(1200px 600px at 20% -10%,#2a1f6b55,transparent),radial-gradient(900px 500px at 100% 100%,#ff5c9d22,transparent),var(--bg);color:var(--fg)}
-.hidden{display:none!important}
+.hidden{display:none!important}.mu{color:var(--mute)}
 button{font:inherit;color:inherit;border:0;cursor:pointer}
 .grad{background:linear-gradient(135deg,var(--a),var(--b))}
 #home{min-height:100%;display:grid;place-items:center;padding:20px}
 .hero{max-width:460px;width:100%;text-align:center}
 .logo{font-size:44px;font-weight:800;letter-spacing:-1px}.logo i{font-style:normal;background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
-.orb{width:120px;height:120px;margin:0 auto 12px;border-radius:50%;background:conic-gradient(from 0deg,var(--a),var(--b),var(--ok),var(--a));filter:blur(.3px);animation:spin 6s linear infinite;display:grid;place-items:center}
+.orb{width:120px;height:120px;margin:0 auto 12px;border-radius:50%;background:conic-gradient(var(--a),var(--b),var(--ok),var(--a));animation:spin 6s linear infinite;display:grid;place-items:center}
 .orb b{width:104px;height:104px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:44px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.pill{display:inline-flex;gap:6px;align-items:center;background:#ffffff14;border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:13px;backdrop-filter:blur(8px)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 var(--ok);animation:pulse 1.6s infinite}
-@keyframes pulse{70%{box-shadow:0 0 0 8px transparent}}
+.pill{display:inline-flex;gap:6px;align-items:center;background:#ffffff14;border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:13px;color:var(--fg)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 1.6s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px transparent}0%{box-shadow:0 0 0 0 var(--ok)}}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:16px;text-align:left}
 label{font-size:13px;color:var(--mute);display:block;margin:10px 0 4px}
-select,input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var(--line);background:#0f0d24;color:var(--fg);font:inherit}
+input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var(--line);background:#0f0d24;color:var(--fg);font:inherit}
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{padding:6px 11px;border-radius:99px;background:#ffffff10;border:1px solid var(--line);font-size:13px}.chip.on{background:var(--a);border-color:var(--a)}
 .rule{display:flex;gap:8px;font-size:13px;color:var(--mute);margin:14px 0}
 .big{width:100%;padding:14px;border-radius:14px;font-weight:700;font-size:16px;transition:.2s}.big:disabled{opacity:.4;cursor:not-allowed}.big:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 8px 24px #7c5cff55}
-#stage{height:100%;display:grid;grid-template-columns:1fr 340px;gap:12px;padding:12px}
-@media(max-width:820px){#stage{grid-template-columns:1fr;grid-template-rows:60% 1fr}}
-.left{display:flex;flex-direction:column;gap:10px;min-height:0}
-.vid{position:relative;flex:1;min-height:0;border-radius:20px;overflow:hidden;background:#000;border:1px solid var(--line)}
-#remote{width:100%;height:100%;object-fit:cover}
-#local{z-index:4;position:absolute;right:12px;bottom:12px;width:26%;max-width:190px;aspect-ratio:3/4;object-fit:cover;border-radius:14px;border:2px solid #fff3;transform:scaleX(-1);background:#111}
-.top{position:absolute;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;gap:8px;z-index:3}
-.top button.pill{color:var(--fg)}
-#idle{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:linear-gradient(160deg,#1a1450,#0d0b1a);z-index:2;padding:20px}
-.radar{width:120px;height:120px;margin:0 auto 14px;position:relative}.radar span{position:absolute;inset:0;border-radius:50%;border:2px solid var(--a);animation:ring 2.4s infinite;opacity:0}.radar span:nth-child(2){animation-delay:.8s}.radar span:nth-child(3){animation-delay:1.6s}.radar b{position:absolute;inset:42px;border-radius:50%}
+#stage{min-height:100%;display:flex;flex-direction:column;gap:10px;padding:10px;max-width:1100px;margin:0 auto}
+.topbar{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{position:relative;border-radius:18px;overflow:hidden;background:#000;border:1px solid var(--line);aspect-ratio:4/3}
+@media(max-width:700px){.tile{aspect-ratio:3/4}}
+.tile video{width:100%;height:100%;object-fit:cover}#local{transform:scaleX(-1)}
+.tag{position:absolute;left:10px;top:10px;z-index:4;font-size:13px;background:#000a;border:1px solid #fff3;border-radius:99px;padding:5px 11px}
+#idle{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:linear-gradient(160deg,#1a1450,#0d0b1a);z-index:2;padding:12px}
+.radar{width:90px;height:90px;margin:0 auto 10px;position:relative}.radar span{position:absolute;inset:0;border-radius:50%;border:2px solid var(--a);animation:ring 2.4s infinite;opacity:0}.radar span:nth-child(2){animation-delay:.8s}.radar span:nth-child(3){animation-delay:1.6s}.radar b{position:absolute;inset:32px;border-radius:50%}
 @keyframes ring{0%{transform:scale(.3);opacity:.9}100%{transform:scale(1.3);opacity:0}}
+.toasts{position:absolute;left:8px;right:8px;bottom:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-start;pointer-events:none;z-index:5}
+.toast{background:#000c;padding:6px 10px;border-radius:12px;font-size:13px;max-width:100%;word-break:break-word;animation:fade 7s forwards}
+@keyframes fade{0%,85%{opacity:1}100%{opacity:0}}
+.fly{position:absolute;bottom:20px;font-size:40px;z-index:6;pointer-events:none;animation:fly 2.4s ease-out forwards}
+@keyframes fly{to{transform:translateY(-260px) rotate(15deg);opacity:0}}
+#tray{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:4px 8px;z-index:7}#tray button{background:none;font-size:24px}#tray button:hover{transform:scale(1.3)}
+#ice{position:absolute;left:8px;right:8px;bottom:8px;background:#171433f0;border:1px solid var(--a);border-radius:14px;padding:10px;font-size:13px;z-index:7}
+#ice button{margin:6px 6px 0 0;padding:4px 10px;border-radius:99px;background:var(--a);font-size:12px}
 .dock{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
-.rb{width:50px;height:50px;border-radius:50%;background:var(--panel);border:1px solid var(--line);font-size:20px;transition:.15s}.rb:hover{transform:scale(1.1);border-color:var(--a)}.rb.off{background:var(--bad)}.rb.rep:hover{border-color:var(--bad)}
-.next{padding:0 28px;height:50px;border-radius:99px;font-weight:800;font-size:16px}
-.chat{background:var(--panel);border:1px solid var(--line);border-radius:20px;display:flex;flex-direction:column;min-height:0}
-#log{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
-.m{max-width:85%;padding:8px 12px;border-radius:14px;font-size:14px;background:#ffffff12;align-self:flex-start;word-break:break-word}.m.me{align-self:flex-end;background:var(--a)}.m.sys{align-self:center;background:none;color:var(--mute);font-size:12px}
-.chat .in{padding:10px;border-top:1px solid var(--line)}
-#tray{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:6px 10px;z-index:6}#tray button{background:none;font-size:26px;transition:.15s}#tray button:hover{transform:scale(1.3)}
-.fly{position:absolute;bottom:20px;font-size:42px;z-index:5;pointer-events:none;animation:fly 2.4s ease-out forwards}
-@keyframes fly{to{transform:translateY(-320px) rotate(15deg);opacity:0}}
-#ice{position:absolute;left:12px;bottom:12px;max-width:60%;background:#171433e6;border:1px solid var(--a);border-radius:14px;padding:10px 12px;font-size:14px;z-index:4}
-#ice button{margin-top:6px;margin-right:6px;padding:4px 10px;border-radius:99px;background:var(--a);font-size:12px}
+.rb{width:48px;height:48px;border-radius:50%;background:var(--panel);border:1px solid var(--line);font-size:20px;transition:.15s}.rb:hover{transform:scale(1.1);border-color:var(--a)}.rb.rep:hover{border-color:var(--bad)}
+.next{padding:0 30px;height:48px;border-radius:99px;font-weight:800;font-size:16px}
+#games{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;min-height:180px;text-align:center}
+#games h3{margin:0 0 8px}
+.row2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.gb{padding:10px 14px;border-radius:12px;background:var(--a);font-weight:600;margin:3px}.gb.sec{background:#ffffff14;font-weight:400;font-size:13px}.gb:disabled{opacity:.4}
+.board{display:grid;grid-template-columns:repeat(3,64px);gap:6px;justify-content:center;margin:8px 0}
+.cell{width:64px;height:64px;border-radius:12px;background:#ffffff12;font-size:30px}
+.mini{display:flex;gap:6px}.mini input{flex:1}.mini button{padding:0 18px;border-radius:12px}
 .modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:20;padding:16px}
 .sheet{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;width:100%;max-width:420px;max-height:80vh;display:flex;flex-direction:column;text-align:center}
 #list{overflow:auto;margin-top:10px;text-align:left}
@@ -57,35 +62,38 @@ select,input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px so
 <section id="home"><div class="hero">
   <div class="orb"><b>👋</b></div>
   <div class="logo">We <i>Meet</i></div>
-  <p style="color:var(--mute)">Say hello to someone new, face to face.</p>
-  <span class="pill"><span class="dot"></span><span id="onlineHome">0</span> people online</span><div id="conn" class="pill" style="margin-top:8px;color:var(--mute)">Connecting to server...</div>
+  <p class="mu">Live video chat with someone new.</p>
+  <span class="pill"><span class="dot"></span><span id="onlineHome">0</span> people online</span>
+  <div style="margin-top:8px"><span class="pill" id="geo">📍 Detecting your location...</span></div>
+  <div style="margin-top:8px"><span class="pill mu" id="conn">Connecting to server...</span></div>
   <div class="card">
-    <label>I am from</label><select id="mine"></select>
-    <label>What do you want to talk about? (optional)</label>
+    <label>Interests (optional, helps match you)</label>
     <div class="chips" id="chips"></div>
-    <label class="rule" style="display:flex"><input type="checkbox" id="agree"><span>I am 18 or older. I will be respectful: no nudity, harassment or hate. Reports lead to bans.</span></label>
-    <button class="big grad" id="start" disabled>Start meeting people</button>
+    <label class="rule" style="display:flex"><input type="checkbox" id="agree"><span>I am 18 or older. I will be respectful: no nudity, harassment or hate. My camera and mic stay on while I am here, and my country (detected from my connection) is shown to the person I meet.</span></label>
+    <button class="big grad" id="start" disabled>Start video chat</button>
   </div>
 </div></section>
  
 <section id="stage" class="hidden">
-  <div class="left">
-    <div class="vid">
+  <div class="topbar"><span class="pill"><span class="dot"></span><span id="online">0</span> online</span><button class="pill" id="countryChip"></button></div>
+  <div class="tiles">
+    <div class="tile" id="tileR">
       <video id="remote" autoplay playsinline></video>
-      <div id="idle"><div><div class="radar"><span></span><span></span><span></span><b class="grad"></b></div><div id="idleText" style="font-size:18px;font-weight:600">Looking for someone...</div><div style="color:var(--mute);font-size:13px;margin-top:6px">Tip: smile, say hi first 😊</div></div></div>
-      <div class="top"><span class="pill"><span class="dot"></span><span id="online">0</span> online</span><span class="pill hidden" id="peerCam">📷 Camera off on their side</span><button class="pill" id="countryChip"></button></div>
-      <video id="local" autoplay playsinline muted></video>
-      <div id="ice" class="hidden"><div id="iceQ"></div><button id="iceSend">Send to chat</button><button id="iceNew">Another</button></div>
+      <div id="idle"><div><div class="radar"><span></span><span></span><span></span><b class="grad"></b></div><div id="idleText" style="font-weight:600">Looking for someone...</div></div></div>
+      <span class="tag hidden" id="peerTag"></span>
+      <div class="toasts" id="tr"></div>
       <div id="tray" class="hidden"><button>👋</button><button>❤️</button><button>😂</button><button>👏</button><button>🔥</button><button>🎉</button></div>
+      <div id="ice" class="hidden"><div id="iceQ"></div><button id="iceSend">Send</button><button id="iceNew">Another</button></div>
     </div>
-    <div class="dock">
-      <button class="rb" id="mic" title="Mic">🎤</button><button class="rb" id="cam" title="Camera">📷</button>
-      <button class="next grad" id="next">Next ➜</button>
-      <button class="rb" id="react" title="Reactions">😊</button><button class="rb" id="bulb" title="Icebreaker">💡</button>
-      <button class="rb" id="block" title="Block">🚫</button><button class="rb rep" id="report" title="Report">⚠️</button><button class="rb" id="stop" title="Leave">✖</button>
-    </div>
+    <div class="tile"><video id="local" autoplay playsinline muted></video><span class="tag">You</span><div class="toasts" id="tl"></div></div>
   </div>
-  <div class="chat"><div id="log"></div><div class="in"><input type="text" id="msg" placeholder="Type a message..." maxlength="500"></div></div>
+  <div class="dock">
+    <button class="next grad" id="next">Next ➜</button>
+    <button class="rb" id="react" title="Reactions">😊</button><button class="rb" id="bulb" title="Icebreaker">💡</button>
+    <button class="rb rep" id="report" title="Report">⚠️</button><button class="rb" id="stop" title="Leave">✖</button>
+  </div>
+  <div id="games"></div>
+  <form class="mini" id="chatForm"><input type="text" id="msg" placeholder="Type a message" maxlength="300" autocomplete="off"><button class="grad" type="submit">Send</button></form>
 </section>
  
 <div class="modal hidden" id="picker"><div class="sheet">
@@ -97,45 +105,46 @@ select,input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px so
  
 <div class="modal hidden" id="away"><div class="sheet">
   <div style="font-size:42px">👀</div><h2 style="margin:6px 0">Are you there?</h2>
-  <p style="color:var(--mute)">People want to see who they are talking to. Turn your camera on so they can see you.</p>
+  <p class="mu">People want to see who they are talking to. Please show your camera.</p>
   <div id="count">30</div>
-  <button class="big grad" id="imHere">Turn camera on</button>
+  <button class="big grad" id="imHere">I am here</button>
 </div></div>
  
 <script>
 const $=s=>document.querySelector(s);
-const C=`KE Kenya,UG Uganda,TZ Tanzania,RW Rwanda,ET Ethiopia,SO Somalia,SS South Sudan,BI Burundi,CD DR Congo,ZA South Africa,NG Nigeria,GH Ghana,EG Egypt,MA Morocco,DZ Algeria,TN Tunisia,ZM Zambia,ZW Zimbabwe,MW Malawi,MZ Mozambique,BW Botswana,NA Namibia,AO Angola,SN Senegal,CI Cote d'Ivoire,CM Cameroon,SD Sudan,US United States,CA Canada,GB United Kingdom,IE Ireland,DE Germany,FR France,ES Spain,IT Italy,NL Netherlands,PT Portugal,SE Sweden,NO Norway,PL Poland,UA Ukraine,RU Russia,TR Turkiye,SA Saudi Arabia,AE UAE,QA Qatar,IL Israel,IN India,PK Pakistan,BD Bangladesh,LK Sri Lanka,CN China,JP Japan,KR South Korea,PH Philippines,ID Indonesia,MY Malaysia,SG Singapore,TH Thailand,VN Vietnam,AU Australia,NZ New Zealand,BR Brazil,AR Argentina,MX Mexico,CO Colombia,CL Chile,PE Peru,JM Jamaica,HT Haiti`.split(',').map(x=>({code:x.slice(0,2),name:x.slice(3)}));
 const flag=c=>c==='ALL'?'🌍':String.fromCodePoint(...[...c].map(ch=>127397+ch.charCodeAt(0)));
-const nameOf=c=>c==='ALL'?'All countries':(C.find(x=>x.code===c)||{name:c}).name;
-const ICE_Q=["What is the best thing that happened to you this week?","If you could travel anywhere tomorrow, where?","What song is stuck in your head?","Which food could you eat every day?","What skill do you want to learn?","Tell me one thing that makes your country special.","What is your favorite way to relax?","Coffee, tea or something else?"];
+const dn=(()=>{try{return new Intl.DisplayNames(['en'],{type:'region'})}catch{return null}})();
+const nameOf=c=>{if(c==='ALL')return'All countries';try{return dn?dn.of(c):c}catch{return c}};
+const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ',SKIP='EU UN EZ AC CP DG EA IC TA XA XB QO ZZ'.split(' ');
+const COUNTRIES=dn?[...L].flatMap(a=>[...L].map(b=>a+b)).filter(c=>!SKIP.includes(c)&&dn.of(c)!==c).map(c=>({code:c,name:dn.of(c)})):['KE','UG','TZ','ZA','NG','GH','US','GB','IN'].map(c=>({code:c,name:c}));
+const ICE_Q=["What is the best thing that happened to you this week?","If you could travel anywhere tomorrow, where?","What song is stuck in your head?","Which food could you eat every day?","What skill do you want to learn?","Tell me one thing that makes your country special."];
 const TOPICS=["Music","Football","Tech","Movies","Languages","Travel","Business","Gaming"];
-let myId,pc,stream,mine='KE',want='ALL',stats={total:0,countries:{}},pend=[],picked=new Set(),ready,gotId=new Promise(r=>ready=r),es;
+const WYR=[["Travel to the past","Travel to the future"],["Always be early","Always be late"],["Live by the beach","Live in the mountains"],["Be able to fly","Be invisible"],["Eat only pizza forever","Eat only rice forever"],["Know every language","Play every instrument"],["Have a pet dragon","Have a pet robot"],["No phone for a month","No music for a month"]];
+const GN={ttt:'Tic-Tac-Toe',rps:'Rock Paper Scissors',wyr:'Would You Rather'};
+let myId,pc,stream,mine=((navigator.language.split('-')[1]||'KE').toUpperCase()),want='ALL',stats={total:0,countries:{}},pend=[],picked=new Set(),ready,gotId=new Promise(r=>ready=r),es;
+let ice=[{urls:'stun:stun.l.google.com:19302'}],linked=false,game=null,inv=null,wait=null;
 const post=(p,b={})=>fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:myId,...b})}).catch(()=>{});
 const sig=data=>post('/signal',{data});
  
-// ---- home setup
-C.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(c=>$('#mine').add(new Option(flag(c.code)+' '+c.name,c.code)));
-const guess=(navigator.language.split('-')[1]||'KE').toUpperCase();mine=C.some(c=>c.code===guess)?guess:'KE';$('#mine').value=mine;
-$('#mine').onchange=e=>mine=e.target.value;
 TOPICS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.textContent=t;b.onclick=()=>{picked.has(t)?picked.delete(t):picked.add(t);b.classList.toggle('on')};$('#chips').append(b)});
 $('#agree').onchange=e=>$('#start').disabled=!e.target.checked;
  
-// ---- events
-let ice=[{urls:'stun:stun.l.google.com:19302'}];
+// ---- server connection
 fetch('/config').then(r=>r.json()).then(j=>{if(j.iceServers)ice=j.iceServers}).catch(()=>{});
-const NOSERVER='Server not reachable. This site must run server.js (Node), not plain static hosting.';
+const NOSERVER='Server not reachable. This site must run server.js (Node).';
 function conn(t,ok){$('#conn').textContent=t;$('#conn').style.color=ok?'var(--ok)':'var(--bad)'}
-function connect(){es=new EventSource('/events');es.onmessage=e=>handle(JSON.parse(e.data));es.onerror=()=>{conn(NOSERVER,false);idle('Cannot reach the server. Check your hosting.')}}
+function connect(){es=new EventSource('/events');es.onmessage=e=>handle(JSON.parse(e.data));es.onerror=()=>{conn(NOSERVER,false);idle('Cannot reach the server.')}}
 connect();
-setTimeout(()=>{if(!myId)conn(NOSERVER,false)},6000);
+setTimeout(()=>{if(!myId)conn(NOSERVER,false);if($('#geo').textContent.includes('Detecting'))$('#geo').textContent='📍 '+flag(mine)+' '+nameOf(mine)},7000);
 function handle(m){
  if(m.type==='hello'){myId=m.id;ready();conn('Connected to server',true);if(stream&&!$('#stage').classList.contains('hidden'))find()}
+ else if(m.type==='geo'){mine=m.code;$('#geo').textContent='📍 '+flag(m.code)+' '+nameOf(m.code)}
  else if(m.type==='stats'){stats=m;$('#online').textContent=$('#onlineHome').textContent=m.total;if(!$('#picker').classList.contains('hidden'))renderList()}
  else if(m.type==='waiting')idle(want==='ALL'?'Looking for someone...':`Looking for someone from ${nameOf(want)}... (${stats.countries[want]||0} online there)`);
- else if(m.type==='matched'){idle('Connecting...');startPeer(m.initiator);sys('Connected. Say hi! 👋')}
+ else if(m.type==='matched'){idle('Connecting...');startPeer(m.initiator);if(m.peer){$('#peerTag').textContent=flag(m.peer)+' '+nameOf(m.peer);$('#peerTag').classList.remove('hidden')}}
  else if(m.type==='signal')onSig(m.data);
- else if(m.type==='chat')bubble(m.text,false);
- else if(m.type==='partner-left'){closePeer();sys('Your partner left');find()}
+ else if(m.type==='chat')toast(m.text,'tr');
+ else if(m.type==='partner-left'){closePeer();find()}
  else if(m.type==='banned'){idle('You were temporarily banned after multiple reports.');es.close()}
 }
 function find(){post('/find',{interests:[...picked].map(s=>s.toLowerCase()),country:mine,want})}
@@ -146,57 +155,119 @@ async function startPeer(init){
  closePeer(true);
  pc=new RTCPeerConnection({iceServers:ice});
  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
- pc.ontrack=e=>{$('#remote').srcObject=e.streams[0];$('#idle').classList.add('hidden')};
+ pc.ontrack=e=>{$('#remote').srcObject=e.streams[0];$('#idle').classList.add('hidden');linked=true;renderGames()};
  pc.onicecandidate=e=>e.candidate&&sig({candidate:e.candidate});
  pc.onconnectionstatechange=()=>{if(pc&&pc.connectionState==='failed')idle('Could not connect. Press Next.')};
  if(init){const o=await pc.createOffer();await pc.setLocalDescription(o);sig({sdp:pc.localDescription})}
 }
 async function onSig(d){
+ if(d.game)return onGame(d.game);
  if(d.react)return fly(d.react);
- if(d.cam!==undefined)return $('#peerCam').classList.toggle('hidden',d.cam);
  if(!pc)return;
  if(d.sdp){await pc.setRemoteDescription(d.sdp);for(const c of pend)await pc.addIceCandidate(c);pend=[];
   if(d.sdp.type==='offer'){const a=await pc.createAnswer();await pc.setLocalDescription(a);sig({sdp:pc.localDescription})}}
  else if(d.candidate){pc.remoteDescription?pc.addIceCandidate(d.candidate):pend.push(d.candidate)}
 }
-function closePeer(keep){if(pc){pc.close();pc=null}pend=[];$('#remote').srcObject=null;$('#peerCam').classList.add('hidden');if(!keep){$('#log').textContent='';idle('Looking for someone...')}}
+function closePeer(keep){
+ if(pc){pc.close();pc=null}pend=[];$('#remote').srcObject=null;
+ linked=false;game=inv=wait=null;renderGames();$('#peerTag').classList.add('hidden');
+ if(!keep){$('#tr').textContent='';idle('Looking for someone...')}
+}
  
-// ---- chat / fun
-function bubble(t,me){const d=document.createElement('div');d.className='m'+(me?' me':'');d.textContent=t;$('#log').append(d);$('#log').scrollTop=1e9}
-function sys(t){const d=document.createElement('div');d.className='m sys';d.textContent=t;$('#log').append(d)}
-$('#msg').onkeydown=e=>{if(e.key!=='Enter')return;const t=e.target.value.trim();if(!t)return;bubble(t,true);post('/chat',{text:t});e.target.value=''};
-function fly(emo){const f=document.createElement('div');f.className='fly';f.textContent=emo;f.style.left=(10+Math.random()*70)+'%';document.querySelector('.vid').append(f);setTimeout(()=>f.remove(),2400)}
+// ---- small chat, reactions, icebreaker
+function toast(t,box){const d=document.createElement('div');d.className='toast';d.textContent=t;$('#'+box).append(d);setTimeout(()=>d.remove(),7000)}
+$('#chatForm').onsubmit=e=>{e.preventDefault();const t=$('#msg').value.trim();if(!t)return;toast(t,'tl');post('/chat',{text:t});$('#msg').value=''};
+function fly(emo){const f=document.createElement('div');f.className='fly';f.textContent=emo;f.style.left=(10+Math.random()*70)+'%';$('#tileR').append(f);setTimeout(()=>f.remove(),2400)}
 $('#react').onclick=()=>$('#tray').classList.toggle('hidden');
 $('#tray').onclick=e=>{if(e.target.tagName!=='BUTTON')return;fly(e.target.textContent);sig({react:e.target.textContent});$('#tray').classList.add('hidden')};
 const nextQ=()=>{$('#iceQ').textContent=ICE_Q[Math.floor(Math.random()*ICE_Q.length)]};
 $('#bulb').onclick=()=>{nextQ();$('#ice').classList.toggle('hidden')};$('#iceNew').onclick=nextQ;
-$('#iceSend').onclick=()=>{const t=$('#iceQ').textContent;bubble(t,true);post('/chat',{text:t});$('#ice').classList.add('hidden')};
+$('#iceSend').onclick=()=>{const t=$('#iceQ').textContent;toast(t,'tl');post('/chat',{text:t});$('#ice').classList.add('hidden')};
+ 
+// ---- games (played over the same private channel as video setup)
+const btn=(a,v,t,c='')=>`<button class="gb ${c}" data-a="${a}" data-v="${v}">${t}</button>`;
+const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function renderGames(){
+ let h='<h3>🎮 Play together</h3>';
+ if(!linked)h+='<p class="mu">Connect with someone to play games with them.</p>';
+ else if(inv)h+=`<p>They want to play <b>${GN[inv]}</b>!</p>`+btn('accept','','Accept ✅')+btn('decline','','No thanks','sec');
+ else if(wait)h+=`<p class="mu">Waiting for them to accept ${GN[wait]}...</p>`;
+ else if(!game)h+='<p class="mu">Pick a game and invite them:</p><div class="row2">'+btn('invite','ttt','❌⭕ Tic-Tac-Toe')+btn('invite','rps','✊✋✌️ Rock Paper Scissors')+btn('invite','wyr','🤔 Would You Rather')+'</div>';
+ else h+=gameView()+'<div>'+btn('end','','Close game','sec')+'</div>';
+ $('#games').innerHTML=h;
+}
+function gameView(){
+ const g=game;
+ if(g.g==='ttt'){const w=g.win;
+  const s=w==='draw'?'It is a draw!':w?(w===g.me?'You win! 🎉':'They win!'):(g.turn===g.me?'Your turn ('+g.me+')':'Their turn...');
+  return `<p><b>${s}</b></p><div class="board">`+g.b.map((c,i)=>`<button class="cell" data-a="cell" data-v="${i}">${c}</button>`).join('')+'</div>'+(w?btn('again','','Play again'):'')}
+ if(g.g==='rps'){const E={r:'✊',p:'✋',s:'✌️'};
+  if(g.mine&&g.theirs){const r=g.mine===g.theirs?'Draw!':({r:'s',p:'r',s:'p'}[g.mine]===g.theirs?'You win! 🎉':'They win!');
+   return `<p style="font-size:34px;margin:6px">${E[g.mine]} vs ${E[g.theirs]}</p><p><b>${r}</b></p>`+btn('again','','Play again')}
+  return `<p>${g.mine?'Waiting for them...':'Choose one:'}</p><div class="row2">`+['r','p','s'].map(k=>`<button class="gb" ${g.mine?'disabled':''} data-a="rps" data-v="${k}">${E[k]}</button>`).join('')+'</div>'}
+ if(g.q===null)return '<p class="mu">Waiting for the first question...</p>';
+ const q=WYR[g.q];
+ if(g.mine&&g.theirs)return `<p><b>${q[0]}</b> or <b>${q[1]}</b>?</p><p>You: <b>${q[g.mine==='a'?0:1]}</b><br>They: <b>${q[g.theirs==='a'?0:1]}</b></p><p>${g.mine===g.theirs?'You agree! 🤝':'Different tastes! 😄'}</p>`+btn('nextq','','Next question ➜');
+ return `<p><b>Would you rather...</b></p><div class="row2">`+['a','b'].map((k,i)=>`<button class="gb" ${g.mine?'disabled':''} data-a="wyr" data-v="${k}">${q[i]}</button>`).join('')+'</div>'+(g.mine?'<p class="mu">Waiting for them...</p>':'');
+}
+function startGame(t,inviter){
+ wait=inv=null;
+ if(t==='ttt')game={g:t,b:Array(9).fill(''),me:inviter?'X':'O',turn:'X',win:null};
+ else if(t==='rps')game={g:t,mine:null,theirs:null,theirPicked:false,sent:false};
+ else{game={g:t,q:null,mine:null,theirs:null};if(inviter)newQ()}
+ renderGames();
+}
+function newQ(){const i=Math.floor(Math.random()*WYR.length);game.q=i;game.mine=game.theirs=null;sig({game:{t:'q',i}})}
+function tttMove(i,local){
+ const g=game;if(g.b[i]||g.win)return;if(local&&g.turn!==g.me)return;
+ const mk=local?g.me:(g.me==='X'?'O':'X');g.b[i]=mk;
+ if(LINES.some(l=>l.every(k=>g.b[k]===mk)))g.win=mk;else if(g.b.every(Boolean))g.win='draw';else g.turn=mk==='X'?'O':'X';
+ if(local)sig({game:{t:'move',i}});renderGames();
+}
+function reveal(){const g=game;if(g.mine&&g.theirPicked&&!g.sent){g.sent=true;sig({game:{t:'reveal',v:g.mine}})}}
+function resetGame(){const g=game;if(!g)return;if(g.g==='ttt'){g.b=Array(9).fill('');g.turn='X';g.win=null}else{g.mine=g.theirs=null;g.theirPicked=g.sent=false}renderGames()}
+function onGame(m){
+ if(m.t==='invite'){if(!game&&!wait){inv=m.g;renderGames()}return}
+ if(m.t==='accept'){startGame(m.g,true);return}
+ if(m.t==='decline'){wait=null;toast('They said no thanks','tr');renderGames();return}
+ if(m.t==='end'){game=null;renderGames();return}
+ const g=game;if(!g)return;
+ if(m.t==='move')tttMove(m.i,false);
+ else if(m.t==='again')resetGame();
+ else if(m.t==='picked'){g.theirPicked=true;reveal()}
+ else if(m.t==='reveal'){g.theirs=m.v;renderGames()}
+ else if(m.t==='q'){g.q=m.i;g.mine=g.theirs=null;renderGames()}
+ else if(m.t==='ans'){g.theirs=m.v;renderGames()}
+}
+$('#games').onclick=e=>{
+ const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,v=b.dataset.v;
+ if(a==='invite'){wait=v;sig({game:{t:'invite',g:v}});renderGames()}
+ else if(a==='accept'){const t=inv;sig({game:{t:'accept',g:t}});startGame(t,false)}
+ else if(a==='decline'){inv=null;sig({game:{t:'decline'}});renderGames()}
+ else if(a==='end'){game=null;sig({game:{t:'end'}});renderGames()}
+ else if(a==='cell')tttMove(+v,true);
+ else if(a==='again'){sig({game:{t:'again'}});resetGame()}
+ else if(a==='rps'){if(!game.mine){game.mine=v;sig({game:{t:'picked'}});reveal();renderGames()}}
+ else if(a==='wyr'){game.mine=v;sig({game:{t:'ans',v}});renderGames()}
+ else if(a==='nextq'){newQ();renderGames()}
+};
  
 // ---- controls
 $('#next').onclick=()=>{closePeer();find()};
-$('#block').onclick=()=>{closePeer();post('/block');find()};
 $('#report').onclick=()=>{const r=prompt('What happened? (nudity, harassment, underage, other)');if(r===null)return;closePeer();post('/report',{reason:r});find()};
-$('#mic').onclick=e=>{const t=stream.getAudioTracks()[0];if(!t)return;t.enabled=!t.enabled;e.currentTarget.classList.toggle('off',!t.enabled)};
-$('#cam').onclick=e=>{const t=stream.getVideoTracks()[0];t.enabled=!t.enabled;e.currentTarget.classList.toggle('off',!t.enabled)};
 $('#stop').onclick=leaveAll;
-function leaveAll(){closePeer();post('/stop');stream&&stream.getTracks().forEach(t=>t.stop());clearInterval(watch);$('#away').classList.add('hidden');$('#stage').classList.add('hidden');$('#home').classList.remove('hidden')}
+function leaveAll(){closePeer();post('/stop');stream&&stream.getTracks().forEach(t=>t.stop());clearInterval(watch);closeAway();$('#stage').classList.add('hidden');$('#home').classList.remove('hidden')}
 async function getMedia(){
  if(!navigator.mediaDevices||!window.isSecureContext)throw{name:'Insecure'};
  try{return await navigator.mediaDevices.getUserMedia({video:true,audio:true})}
- catch(e){if(e.name==='NotAllowedError'||e.name==='SecurityError')throw e;
-  return await navigator.mediaDevices.getUserMedia({video:true})} // mic missing or busy: continue with camera only
+ catch(e){if(e.name==='NotAllowedError'||e.name==='SecurityError')throw e;return await navigator.mediaDevices.getUserMedia({video:true})}
 }
-const HELP={Insecure:'Open this site with https:// (secure link). Browsers block the camera on http.',
- NotAllowedError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',
- SecurityError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',
- NotFoundError:'No camera was found on this device.',
- NotReadableError:'Your camera is being used by another app or browser tab. Close it and try again.'};
+const HELP={Insecure:'Open this site with https:// (secure link). Browsers block the camera on http.',NotAllowedError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',SecurityError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',NotFoundError:'No camera was found on this device.',NotReadableError:'Your camera is being used by another app or browser tab. Close it and try again.'};
 $('#start').onclick=async()=>{
  try{stream=await getMedia()}catch(e){return alert((HELP[e.name]||'Could not start the camera.')+' ('+(e.name||'error')+')')}
  $('#local').srcObject=stream;$('#local').play().catch(()=>{});
  $('#home').classList.add('hidden');$('#stage').classList.remove('hidden');
- $('#cam').classList.remove('off');$('#mic').classList.toggle('off',!stream.getAudioTracks().length);
- chip();idle(myId?'Looking for someone...':'Connecting to server...');startWatch();
+ chip();renderGames();idle(myId?'Looking for someone...':'Connecting to server...');startWatch();
  await gotId;find();
 };
  
@@ -204,7 +275,7 @@ $('#start').onclick=async()=>{
 const chip=()=>$('#countryChip').textContent=`${flag(want)} ${nameOf(want)} ▾`;
 function renderList(){
  const q=$('#q').value.toLowerCase(),n=c=>stats.countries[c]||0;
- const rows=[{code:'ALL',name:'All countries'},...C.slice().sort((a,b)=>n(b.code)-n(a.code)||a.name.localeCompare(b.name))].filter(c=>c.name.toLowerCase().includes(q));
+ const rows=[{code:'ALL',name:'All countries'},...COUNTRIES.slice().sort((a,b)=>n(b.code)-n(a.code)||a.name.localeCompare(b.name))].filter(c=>c.name.toLowerCase().includes(q));
  $('#list').innerHTML='';
  rows.forEach(c=>{const r=document.createElement('div');r.className='row'+(c.code===want?' sel':'');
   r.innerHTML=`<span class="f">${flag(c.code)}</span><span>${c.name}</span><em>${c.code==='ALL'?stats.total:n(c.code)} online</em>`;
@@ -213,20 +284,21 @@ function renderList(){
 $('#countryChip').onclick=()=>{$('#q').value='';renderList();$('#picker').classList.remove('hidden')};
 $('#closePick').onclick=()=>$('#picker').classList.add('hidden');$('#q').oninput=renderList;
  
-// ---- camera watch: if camera is off/covered for 60s, ask the user to show themselves
+// ---- camera and mic stay on; if the camera is covered for 60s, ask the user to show themselves
 const cv=document.createElement('canvas');cv.width=cv.height=16;const cx=cv.getContext('2d',{willReadFrequently:true});
-function camOk(){const t=stream&&stream.getVideoTracks()[0];if(!t||!t.enabled||t.readyState!=='live'||t.muted)return false;
+function camOk(){const t=stream&&stream.getVideoTracks()[0];if(!t||t.readyState!=='live'||t.muted)return false;
  try{cx.drawImage($('#local'),0,0,16,16);const d=cx.getImageData(0,0,16,16).data;let s=0;for(let i=0;i<d.length;i+=4)s+=d[i]+d[i+1]+d[i+2];return s/(d.length/4*3)>12}catch{return true}}
-let watch,off=0,last=true,left=30,cd;
-function startWatch(){off=0;last=true;clearInterval(watch);watch=setInterval(()=>{
- const ok=camOk();if(ok!==last){last=ok;sig({cam:ok})}
- off=ok?0:off+2;
+let watch,off=0,left=30,cd;
+function startWatch(){off=0;clearInterval(watch);watch=setInterval(()=>{
+ stream.getTracks().forEach(t=>{if(!t.enabled)t.enabled=true});
+ const ok=camOk();off=ok?0:off+2;
  if(ok&&!$('#away').classList.contains('hidden'))closeAway();
  if(off>=60&&$('#away').classList.contains('hidden'))openAway();
 },2000)}
 function openAway(){left=30;$('#count').textContent=left;$('#away').classList.remove('hidden');
- cd=setInterval(()=>{$('#count').textContent=--left;if(left<=0){closeAway();leaveAll();alert('You were disconnected because your camera stayed off.')}},1000)}
+ cd=setInterval(()=>{$('#count').textContent=--left;if(left<=0){leaveAll();alert('You were disconnected because your camera stayed off.')}},1000)}
 function closeAway(){clearInterval(cd);off=0;$('#away').classList.add('hidden')}
-$('#imHere').onclick=()=>{const t=stream.getVideoTracks()[0];t.enabled=true;$('#cam').classList.remove('off')};
+$('#imHere').onclick=()=>{off=0};
 addEventListener('beforeunload',()=>{myId&&navigator.sendBeacon('/stop',new Blob([JSON.stringify({id:myId})],{type:'application/json'}))});
 </script></body></html>
+ 
