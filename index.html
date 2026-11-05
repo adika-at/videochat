@@ -67,7 +67,8 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
 <section id="login" class="hidden"><div class="hero">
   <div class="orb"><b>👋</b></div>
   <div class="logo">We <i>Meet</i></div>
-  <p class="mu">Live video chat with someone new.<br>Sign in once. One account, one person.</p>
+  <p class="mu" style="font-size:18px;margin:6px 0 0">Meet someone new face to face.</p>
+  <p class="mu" style="font-size:14px;margin:22px 0 0">Sign in or sign up with your Google account to continue.</p>
   <div id="gbtn" style="display:flex;justify-content:center;margin:18px 0 8px;min-height:44px"></div>
   <button class="big grad hidden" id="guest">Continue as guest (testing only)</button>
   <p id="loginMsg" style="color:var(--bad);font-size:14px"></p>
@@ -78,13 +79,10 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
   <div class="logo">We <i>Meet</i></div>
   <p class="mu">Live video chat with someone new.</p>
   <span class="pill"><span class="dot"></span><span id="onlineHome">0</span> people online</span>
-  <div style="margin-top:8px"><span class="pill" id="geo">📍 Detecting your location...</span></div>
-  <div style="margin-top:8px"><span class="pill mu" id="conn">Connecting to server...</span></div>
+  <div style="margin-top:8px"><span class="pill hidden" id="conn"></span></div>
   <p class="mu" style="font-size:13px;margin:10px 0 0">Signed in as <b id="who"></b> · <a href="#" id="signout" style="color:var(--b)">Sign out</a></p>
   <div class="card">
-    <label>Interests (optional, helps match you)</label>
-    <div class="chips" id="chips"></div>
-    <label class="rule" style="display:flex"><input type="checkbox" id="agree"><span>I am 18 or older. I will be respectful: no nudity, harassment or hate. My camera and mic stay on while I am here, and my country (detected from my connection) is shown to the person I meet.</span></label>
+    <label class="rule" style="display:flex"><input type="checkbox" id="agree"><span>I am 18 or older and I agree to the <a href="#" id="policyLink" style="color:var(--a);font-weight:600">Privacy Policy</a>. I will be respectful: no nudity, harassment or hate. My camera and mic stay on while I am here.</span></label>
     <button class="big grad" id="start" disabled>Continue</button>
   </div>
 </div></section>
@@ -134,6 +132,16 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
   <button class="gb sec" id="repClose">Cancel</button>
 </div></div>
 
+<div class="modal hidden" id="policyM"><div class="sheet" style="text-align:left;max-height:85vh;overflow:auto">
+  <h3 style="margin:0 0 8px;color:var(--a)">Privacy Policy</h3>
+  <p style="font-size:14px"><b>What we keep:</b> the email of your Google account (so each person has one account), your country (worked out from your connection), and what you choose under "I am".</p>
+  <p style="font-size:14px"><b>Video and sound</b> go directly between you and the person you meet. We do not record or store them.</p>
+  <p style="font-size:14px"><b>What the other person sees:</b> your video and your country. They cannot see your email or your "I am" choice.</p>
+  <p style="font-size:14px"><b>Reports:</b> if someone reports you, we keep a record of it to help keep everyone safe, and repeated reports can lead to a ban.</p>
+  <p style="font-size:14px"><b>Your data:</b> we do not sell it. To ask about or delete your data, contact the site owner.</p>
+  <button class="gb" id="policyClose" style="align-self:center">Got it</button>
+</div></div>
+
 <div class="modal hidden" id="away"><div class="sheet">
   <div style="font-size:42px">👀</div><h2 style="margin:6px 0">Are you there?</h2>
   <p class="mu">People want to see who they are talking to. Please show your camera.</p>
@@ -149,7 +157,6 @@ const dn=(()=>{try{return new Intl.DisplayNames(['en'],{type:'region'})}catch{re
 const nameOf=c=>{if(c==='ALL')return'All countries';try{return dn?dn.of(c):c}catch{return c}};
 const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ',SKIP='EU UN EZ AC CP DG EA IC TA XA XB QO ZZ'.split(' ');
 const COUNTRIES=dn?[...L].flatMap(a=>[...L].map(b=>a+b)).filter(c=>!SKIP.includes(c)&&dn.of(c)!==c).map(c=>({code:c,name:dn.of(c)})):['KE','UG','TZ','ZA','NG','GH','US','GB','IN'].map(c=>({code:c,name:c}));
-const TOPICS=["Music","Football","Tech","Movies","Languages","Travel","Business","Gaming"];
 let myId,pc,stream,mine=((navigator.language.split('-')[1]||'KE').toUpperCase()),want='ALL',stats={total:0,countries:{}},pend=[],picked=new Set(),ready,gotId=new Promise(r=>ready=r),es;
 let ice=[{urls:'stun:stun.l.google.com:19302'}],linked=false;
 let cfg={},token=null,email=null,gender=null,started=false,pendingStart=false;
@@ -158,12 +165,11 @@ const show=id=>{['login','home','stage'].forEach(s=>$('#'+s).classList.toggle('h
 const post=(p,b={})=>fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:myId,...b})}).catch(()=>{});
 const sig=data=>post('/signal',{data});
 
-TOPICS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.textContent=t;b.onclick=()=>{picked.has(t)?picked.delete(t):picked.add(t);b.classList.toggle('on')};$('#chips').append(b)});
 $('#agree').onchange=e=>$('#start').disabled=!e.target.checked;
 
 // ---- sign-in and server connection
 const NOSERVER='Server not reachable. This site must run server.js (Node).';
-function conn(t,ok){$('#conn').textContent=t;$('#conn').style.color=ok?'var(--ok)':'var(--bad)'}
+function conn(t,ok){const e=$('#conn');e.classList.toggle('hidden',ok);e.textContent=t;e.style.color='var(--bad)'}
 function stopMedia(){stream&&stream.getTracks().forEach(t=>t.stop());stream=null;clearInterval(watch)}
 function showLogin(msg,plain){stopMedia();started=false;show('login');$('#loginMsg').innerHTML=msg||'';if(plain){$('#gbtn').textContent='';return}
  if(!cfg.googleClientId){$('#guest').classList.remove('hidden');return}
@@ -176,6 +182,8 @@ async function doAuth(body){
  afterLogin(await r.json());
 }
 function afterLogin(j){token=j.token;email=j.email;gender=j.gender;localStorage.setItem('wm_token',token);$('#who').textContent=email;show('home');updIam();connect()}
+$('#policyLink').onclick=e=>{e.preventDefault();$('#policyM').classList.remove('hidden')};
+$('#policyClose').onclick=()=>$('#policyM').classList.add('hidden');
 $('#guest').onclick=()=>doAuth({guest:true});
 $('#signout').onclick=e=>{e.preventDefault();localStorage.removeItem('wm_token');location.reload()};
 function connect(){
@@ -190,10 +198,9 @@ function connect(){
  if(t){const r=await api('/me',{token:t}).catch(()=>null);if(r&&r.ok)return afterLogin({...(await r.json()),token:t})}
  showLogin();
 })();
-setTimeout(()=>{if($('#geo').textContent.includes('Detecting'))$('#geo').textContent='📍 '+flag(mine)+' '+nameOf(mine)},8000);
 function handle(m){
  if(m.type==='hello'){myId=m.id;ready();conn('Connected to server',true);if(stream&&started)find()}
- else if(m.type==='geo'){mine=m.code;$('#geo').textContent='📍 '+flag(m.code)+' '+nameOf(m.code)}
+ else if(m.type==='geo'){mine=m.code}
  else if(m.type==='stats'){stats=m;$('#online').textContent=$('#onlineHome').textContent=m.total;if(!$('#picker').classList.contains('hidden'))renderList()}
  else if(m.type==='waiting')idle(want==='ALL'?'Looking for someone...':`Looking for someone from ${nameOf(want)}... (${stats.countries[want]||0} online there)`);
  else if(m.type==='matched'){idle('Connecting...');startPeer(m.initiator);if(m.peer){$('#peerTag').textContent=flag(m.peer)+' '+nameOf(m.peer);$('#peerTag').classList.remove('hidden')}}
@@ -267,7 +274,7 @@ function renderList(){
  const rows=[{code:'ALL',name:'All countries'},...COUNTRIES.slice().sort((a,b)=>n(b.code)-n(a.code)||a.name.localeCompare(b.name))].filter(c=>c.name.toLowerCase().includes(q));
  $('#list').innerHTML='';
  rows.forEach(c=>{const r=document.createElement('div');r.className='row'+(c.code===want?' sel':'');
-  r.innerHTML=`<span class="f">${flag(c.code)}</span><span>${c.name}</span><em>${c.code==='ALL'?stats.total:n(c.code)} online</em>`;
+  r.innerHTML=`<span class="f">${flag(c.code)}</span><span${c.code===mine?' style="font-weight:800"':''}>${c.name}</span><em>${c.code==='ALL'?stats.total:n(c.code)} online</em>`;
   r.onclick=()=>{want=c.code;chip();$('#picker').classList.add('hidden');if(started){closePeer();find()}};$('#list').append(r)});
 }
 $('#countryChip').onclick=()=>{$('#q').value='';renderList();$('#picker').classList.remove('hidden')};
