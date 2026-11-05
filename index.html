@@ -57,8 +57,17 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
 #list{overflow:auto;margin-top:10px;text-align:left}
 .row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer}.row:hover,.row.sel{background:#ffffff14}.row em{margin-left:auto;font-style:normal;font-size:12px;color:var(--ok)}.row .f{font-size:22px}
 #count{font-size:56px;font-weight:800}
+.flagb{position:absolute;right:10px;top:10px;z-index:9;width:40px;height:40px;border-radius:50%;background:#000a;border:1px solid #fff3;font-size:18px}.flagb:hover{border-color:var(--bad)}
+@media(max-width:700px){
+ #stage{padding:8px;gap:8px}
+ .tiles{display:block;position:relative;height:calc(100vh - 260px);height:calc(100dvh - 260px);min-height:340px}
+ .tile:first-child{height:100%;aspect-ratio:auto}
+ .tile.me{position:absolute;right:10px;bottom:10px;width:30%;aspect-ratio:3/4;z-index:8;border:2px solid #fff4;box-shadow:0 6px 20px #000a}
+ .tile.me .tag,.tile.me .toasts{display:none}
+ .dock{padding:6px;gap:6px}.next{flex:1;padding:0 16px}
+}
 </style></head><body>
- 
+
 <section id="login" class="hidden"><div class="hero">
   <div class="orb"><b>👋</b></div>
   <div class="logo">We <i>Meet</i></div>
@@ -67,7 +76,7 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
   <button class="big grad hidden" id="guest">Continue as guest (testing only)</button>
   <p id="loginMsg" style="color:var(--bad);font-size:14px"></p>
 </div></section>
- 
+
 <section id="home" class="hidden"><div class="hero">
   <div class="orb"><b>👋</b></div>
   <div class="logo">We <i>Meet</i></div>
@@ -83,7 +92,7 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
     <button class="big grad" id="start" disabled>Continue</button>
   </div>
 </div></section>
- 
+
 <section id="stage" class="hidden">
   <div class="topbar"><span class="pill"><span class="dot"></span><span id="online">0</span> online</span><button class="pill" id="countryChip"></button></div>
   <div class="tiles">
@@ -92,43 +101,48 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
       <div id="idle"><div><div class="radar"><span></span><span></span><span></span><b class="grad"></b></div><div id="idleText" style="font-weight:600">Looking for someone...</div></div></div>
       <span class="tag hidden" id="peerTag"></span>
       <div class="toasts" id="tr"></div>
-      <div id="tray" class="hidden"><button>👋</button><button>❤️</button><button>😂</button><button>👏</button><button>🔥</button><button>🎉</button></div>
-      <div id="ice" class="hidden"><div id="iceQ"></div><button id="iceSend">Send</button><button id="iceNew">Another</button></div>
+      <button class="flagb hidden" id="flag" title="Report this person">🚩</button>
     </div>
-    <div class="tile"><video id="local" autoplay playsinline muted></video><span class="tag">You</span><div class="toasts" id="tl"></div></div>
+    <div class="tile me"><video id="local" autoplay playsinline muted></video><span class="tag">You</span><div class="toasts" id="tl"></div></div>
   </div>
   <div class="dock">
     <button class="next grad" id="next">Start</button>
     <button class="stopb" id="stop" disabled>Stop</button>
     <button class="iam" id="iam">I am ▾</button>
-    <button class="rb" id="react" title="Reactions">😊</button><button class="rb" id="bulb" title="Icebreaker">💡</button>
-    <button class="rb rep" id="report" title="Report">⚠️</button>
+
   </div>
   <div id="games"></div>
   <form class="mini" id="chatForm"><input type="text" id="msg" placeholder="Type a message" maxlength="300" autocomplete="off"><button class="grad" type="submit">Send</button></form>
 </section>
- 
+
 <div class="modal hidden" id="picker"><div class="sheet">
   <h3 style="margin:0 0 10px">Meet people from...</h3>
   <input type="text" id="q" placeholder="Search country">
   <div id="list"></div>
   <button class="big" style="margin-top:10px;background:#ffffff14" id="closePick">Close</button>
 </div></div>
- 
+
 <div class="modal hidden" id="iamM"><div class="sheet">
   <h3 style="margin:0 0 6px">I am...</h3>
   <p class="mu" style="font-size:13px">Only for our records. The person you meet will not see this.</p>
   <div class="row2"><button class="gb" data-g="male">👨 Male</button><button class="gb" data-g="female">👩 Female</button><button class="gb" data-g="couple">👫 Couple</button></div>
   <button class="gb sec" id="iamClose">Close</button>
 </div></div>
- 
+
+<div class="modal hidden" id="repM"><div class="sheet">
+  <h3 style="margin:0 0 6px">Report this person</h3>
+  <p class="mu" style="font-size:13px">Why are you reporting them?</p>
+  <div class="row2"><button class="gb" data-r="nudity">Nudity</button><button class="gb" data-r="harassment">Harassment</button><button class="gb" data-r="underage">Looks underage</button><button class="gb" data-r="other">Other</button></div>
+  <button class="gb sec" id="repClose">Cancel</button>
+</div></div>
+
 <div class="modal hidden" id="away"><div class="sheet">
   <div style="font-size:42px">👀</div><h2 style="margin:6px 0">Are you there?</h2>
   <p class="mu">People want to see who they are talking to. Please show your camera.</p>
   <div id="count">30</div>
   <button class="big grad" id="imHere">I am here</button>
 </div></div>
- 
+
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 const $=s=>document.querySelector(s);
@@ -137,7 +151,6 @@ const dn=(()=>{try{return new Intl.DisplayNames(['en'],{type:'region'})}catch{re
 const nameOf=c=>{if(c==='ALL')return'All countries';try{return dn?dn.of(c):c}catch{return c}};
 const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ',SKIP='EU UN EZ AC CP DG EA IC TA XA XB QO ZZ'.split(' ');
 const COUNTRIES=dn?[...L].flatMap(a=>[...L].map(b=>a+b)).filter(c=>!SKIP.includes(c)&&dn.of(c)!==c).map(c=>({code:c,name:dn.of(c)})):['KE','UG','TZ','ZA','NG','GH','US','GB','IN'].map(c=>({code:c,name:c}));
-const ICE_Q=["What is the best thing that happened to you this week?","If you could travel anywhere tomorrow, where?","What song is stuck in your head?","Which food could you eat every day?","What skill do you want to learn?","Tell me one thing that makes your country special."];
 const TOPICS=["Music","Football","Tech","Movies","Languages","Travel","Business","Gaming"];
 let myId,pc,stream,mine=((navigator.language.split('-')[1]||'KE').toUpperCase()),want='ALL',stats={total:0,countries:{}},pend=[],picked=new Set(),ready,gotId=new Promise(r=>ready=r),es;
 let ice=[{urls:'stun:stun.l.google.com:19302'}],linked=false,game=null,inv=null,wait=null;
@@ -146,10 +159,10 @@ const api=(p,b)=>fetch(p,{method:'POST',headers:{'Content-Type':'application/jso
 const show=id=>['login','home','stage'].forEach(s=>$('#'+s).classList.toggle('hidden',s!==id));
 const post=(p,b={})=>fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:myId,...b})}).catch(()=>{});
 const sig=data=>post('/signal',{data});
- 
+
 TOPICS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.textContent=t;b.onclick=()=>{picked.has(t)?picked.delete(t):picked.add(t);b.classList.toggle('on')};$('#chips').append(b)});
 $('#agree').onchange=e=>$('#start').disabled=!e.target.checked;
- 
+
 // ---- sign-in and server connection
 const NOSERVER='Server not reachable. This site must run server.js (Node).';
 function conn(t,ok){$('#conn').textContent=t;$('#conn').style.color=ok?'var(--ok)':'var(--bad)'}
@@ -194,20 +207,19 @@ function handle(m){
 }
 function find(){if(!started)return;post('/find',{interests:[...picked].map(s=>s.toLowerCase()),country:mine,want})}
 function idle(t){$('#idle').classList.remove('hidden');$('#idleText').textContent=t}
- 
+
 // ---- WebRTC
 async function startPeer(init){
  closePeer(true);
  pc=new RTCPeerConnection({iceServers:ice});
  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
- pc.ontrack=e=>{$('#remote').srcObject=e.streams[0];$('#idle').classList.add('hidden');linked=true;renderGames()};
+ pc.ontrack=e=>{$('#remote').srcObject=e.streams[0];$('#idle').classList.add('hidden');linked=true;$('#flag').classList.remove('hidden');renderGames()};
  pc.onicecandidate=e=>e.candidate&&sig({candidate:e.candidate});
  pc.onconnectionstatechange=()=>{if(pc&&pc.connectionState==='failed')idle('Could not connect. Press Next.')};
  if(init){const o=await pc.createOffer();await pc.setLocalDescription(o);sig({sdp:pc.localDescription})}
 }
 async function onSig(d){
  if(d.game)return onGame(d.game);
- if(d.react)return fly(d.react);
  if(!pc)return;
  if(d.sdp){await pc.setRemoteDescription(d.sdp);for(const c of pend)await pc.addIceCandidate(c);pend=[];
   if(d.sdp.type==='offer'){const a=await pc.createAnswer();await pc.setLocalDescription(a);sig({sdp:pc.localDescription})}}
@@ -215,20 +227,14 @@ async function onSig(d){
 }
 function closePeer(keep){
  if(pc){pc.close();pc=null}pend=[];$('#remote').srcObject=null;
- linked=false;game=inv=wait=null;renderGames();$('#peerTag').classList.add('hidden');
+ linked=false;game=inv=wait=null;renderGames();$('#flag').classList.add('hidden');$('#repM').classList.add('hidden');$('#peerTag').classList.add('hidden');
  if(!keep){$('#tr').textContent='';idle('Looking for someone...')}
 }
- 
-// ---- small chat, reactions, icebreaker
+
+// ---- small chat
 function toast(t,box){const d=document.createElement('div');d.className='toast';d.textContent=t;$('#'+box).append(d);setTimeout(()=>d.remove(),7000)}
-$('#chatForm').onsubmit=e=>{e.preventDefault();const t=$('#msg').value.trim();if(!t)return;toast(t,'tl');post('/chat',{text:t});$('#msg').value=''};
-function fly(emo){const f=document.createElement('div');f.className='fly';f.textContent=emo;f.style.left=(10+Math.random()*70)+'%';$('#tileR').append(f);setTimeout(()=>f.remove(),2400)}
-$('#react').onclick=()=>$('#tray').classList.toggle('hidden');
-$('#tray').onclick=e=>{if(e.target.tagName!=='BUTTON')return;fly(e.target.textContent);sig({react:e.target.textContent});$('#tray').classList.add('hidden')};
-const nextQ=()=>{$('#iceQ').textContent=ICE_Q[Math.floor(Math.random()*ICE_Q.length)]};
-$('#bulb').onclick=()=>{nextQ();$('#ice').classList.toggle('hidden')};$('#iceNew').onclick=nextQ;
-$('#iceSend').onclick=()=>{const t=$('#iceQ').textContent;toast(t,'tl');post('/chat',{text:t});$('#ice').classList.add('hidden')};
- 
+$('#chatForm').onsubmit=e=>{e.preventDefault();const t=$('#msg').value.trim();if(!t)return;toast(t,'tl');if(innerWidth<=700)toast('You: '+t,'tr');post('/chat',{text:t});$('#msg').value=''};
+
 // ---- games (played over the same private channel as video setup)
 const btn=(a,v,t,c='')=>`<button class="gb ${c}" data-a="${a}" data-v="${v}">${t}</button>`;
 function renderGames(){
@@ -268,7 +274,7 @@ $('#games').onclick=e=>{
  else if(a==='again'){sig({game:{t:'again'}});resetGame()}
  else if(a==='rps'){if(!game.mine){game.mine=v;sig({game:{t:'picked'}});reveal();renderGames()}}
 };
- 
+
 // ---- controls
 const label=()=>{$('#next').textContent=started?'Next ➜':'Start';$('#stop').disabled=!started};
 function startMeeting(){started=true;label();idle('Looking for someone...');find()}
@@ -277,7 +283,9 @@ $('#next').onclick=()=>{
  if(!started)startMeeting();else{closePeer();find()}
 };
 $('#stop').onclick=()=>{started=false;closePeer();post('/stop');idle('Press Start to meet someone');label()};
-$('#report').onclick=()=>{if(!linked)return;const r=prompt('What happened? (nudity, harassment, underage, other)');if(r===null)return;closePeer();post('/report',{reason:r});find()};
+$('#flag').onclick=()=>{if(linked)$('#repM').classList.remove('hidden')};
+$('#repClose').onclick=()=>$('#repM').classList.add('hidden');
+$('#repM').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;$('#repM').classList.add('hidden');closePeer();post('/report',{reason:b.dataset.r});find();toast('Thanks, your report was sent','tr')};
 const updIam=()=>$('#iam').textContent='I am'+(gender?': '+gender[0].toUpperCase()+gender.slice(1):'')+' ▾';
 $('#iam').onclick=()=>$('#iamM').classList.remove('hidden');
 $('#iamClose').onclick=()=>{pendingStart=false;$('#iamM').classList.add('hidden')};
@@ -285,7 +293,7 @@ $('#iamM').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;gender=
 function leaveAll(){closePeer();post('/stop');closeAway();started=false;stopMedia();show('home')}
 async function getMedia(){
  if(!navigator.mediaDevices||!window.isSecureContext)throw{name:'Insecure'};
- try{return await navigator.mediaDevices.getUserMedia({video:true,audio:true})}
+ try{return await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:true})}
  catch(e){if(e.name==='NotAllowedError'||e.name==='SecurityError')throw e;return await navigator.mediaDevices.getUserMedia({video:true})}
 }
 const HELP={Insecure:'Open this site with https:// (secure link). Browsers block the camera on http.',NotAllowedError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',SecurityError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',NotFoundError:'No camera was found on this device.',NotReadableError:'Your camera is being used by another app or browser tab. Close it and try again.'};
@@ -294,7 +302,7 @@ $('#start').onclick=async()=>{
  $('#local').srcObject=stream;$('#local').play().catch(()=>{});
  show('stage');started=false;label();chip();renderGames();idle('Press Start to meet someone');startWatch();
 };
- 
+
 // ---- country picker
 const chip=()=>$('#countryChip').textContent=`${flag(want)} ${nameOf(want)} ▾`;
 function renderList(){
@@ -307,7 +315,7 @@ function renderList(){
 }
 $('#countryChip').onclick=()=>{$('#q').value='';renderList();$('#picker').classList.remove('hidden')};
 $('#closePick').onclick=()=>$('#picker').classList.add('hidden');$('#q').oninput=renderList;
- 
+
 // ---- camera and mic stay on; if the camera is covered for 60s, ask the user to show themselves
 const cv=document.createElement('canvas');cv.width=cv.height=16;const cx=cv.getContext('2d',{willReadFrequently:true});
 function camOk(){const t=stream&&stream.getVideoTracks()[0];if(!t||t.readyState!=='live'||t.muted)return false;
