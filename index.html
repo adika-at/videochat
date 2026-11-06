@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>We Meet</title>
+<title>Duotalk</title>
 <style>
 :root{--bg:#ffffff;--soft:#eef4ff;--line:#cddcff;--fg:#0b2a6f;--mute:#4b6cc4;--a:#1d4ed8;--b:#3b82f6;--ok:#2563eb;--bad:#0b3fae;color-scheme:light}
 *{box-sizing:border-box}html,body{height:100%}
@@ -11,7 +11,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .grad{background:linear-gradient(135deg,var(--a),var(--b));color:#fff}
 #login,#home{min-height:100%;display:grid;place-items:center;padding:20px}
 .hero{max-width:460px;width:100%;text-align:center}
-.logo{font-size:44px;font-weight:800;letter-spacing:-1px}.logo i{font-style:normal;background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo{font-size:54px;font-weight:900;letter-spacing:-2px;color:var(--fg)}.logo i{font-style:normal;background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
 .orb{width:120px;height:120px;margin:0 auto 12px;border-radius:50%;background:conic-gradient(var(--a),var(--b),#fff,var(--a));animation:spin 6s linear infinite;display:grid;place-items:center}
 .orb b{width:104px;height:104px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:44px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -37,7 +37,12 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
 .radar{width:90px;height:90px;margin:0 auto 10px;position:relative}.radar span{position:absolute;inset:0;border-radius:50%;border:2px solid #fff;animation:ring 2.4s infinite;opacity:0}.radar span:nth-child(2){animation-delay:.8s}.radar span:nth-child(3){animation-delay:1.6s}.radar b{position:absolute;inset:32px;border-radius:50%;background:#fff}
 @keyframes ring{0%{transform:scale(.3);opacity:.9}100%{transform:scale(1.3);opacity:0}}
 .toasts{position:absolute;left:8px;right:8px;bottom:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-start;pointer-events:none;z-index:5}
-.toast{background:#0b2a6fe6;color:#fff;padding:6px 10px;border-radius:12px;font-size:14px;max-width:100%;word-break:break-word;animation:fade 7s forwards}
+.toast{background:#0b2a6fe6;color:#fff;padding:6px 10px;border-radius:12px;font-size:14px;max-width:100%;word-break:break-word;}
+.toast .cd{opacity:.75;font-size:12px;margin-left:8px;font-weight:400}
+.reacts{position:absolute;right:10px;top:60px;z-index:9;display:flex;flex-direction:column;gap:8px}
+.reacts button{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);font-size:20px;line-height:1;transition:.15s}.reacts button:hover{transform:scale(1.15)}.reacts button:active{transform:scale(.9)}
+.fly{position:absolute;bottom:60px;font-size:44px;z-index:6;pointer-events:none;animation:fly 2.4s ease-out forwards}
+@keyframes fly{to{transform:translateY(-260px) rotate(12deg);opacity:0}}
 @keyframes fade{0%,85%{opacity:1}100%{opacity:0}}
 .flagb{position:absolute;right:10px;top:10px;z-index:9;width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center}.flagb:hover{background:var(--soft)}
 .dock,.mini{display:flex;gap:8px;height:52px}
@@ -68,8 +73,8 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
 
 <section id="login" class="hidden"><div class="hero">
   <div class="orb"><b>👋</b></div>
-  <div class="logo">We <i>Meet</i></div>
-  <p class="mu" style="font-size:18px;margin:6px 0 0">Meet someone new face to face.</p>
+  <div class="logo">Duo<i>talk</i></div>
+  <p class="mu" style="font-size:18px;margin:6px 0 0">Meet people beyond your world.</p>
   <p class="mu" style="font-size:14px;margin:22px 0 0">Sign in or sign up with your Google account to continue.</p>
   <div id="gbtn" style="display:flex;justify-content:center;margin:18px 0 8px;min-height:44px"></div>
   <button class="big grad hidden" id="guest">Continue as guest (testing only)</button>
@@ -78,7 +83,7 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
 
 <section id="home" class="hidden"><div class="hero">
   <div class="orb"><b>👋</b></div>
-  <div class="logo">We <i>Meet</i></div>
+  <div class="logo">Duo<i>talk</i></div>
   <p class="mu">Live video chat with someone new.</p>
   <span class="pill"><span class="dot"></span><span id="onlineHome">0</span> people online</span>
   <div style="margin-top:8px"><span class="pill hidden" id="conn"></span></div>
@@ -98,6 +103,7 @@ input[type=text]{width:100%;padding:11px;border-radius:12px;border:1px solid var
         <div id="idle"><div><div class="radar"><span></span><span></span><span></span><b></b></div><div id="idleText" style="font-weight:600">Looking for someone...</div></div></div>
         <span class="tag hidden" id="peerTag"></span>
         <div class="toasts" id="tr"></div>
+        <div class="reacts hidden" id="reacts"><button data-e="❤️">❤️</button><button data-e="😂">😂</button><button data-e="😊">😊</button><button data-e="🔥">🔥</button></div>
         <button class="flagb hidden" id="flag" title="Report this person"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22V3"/><path d="M5 4h12l-2 4 2 4H5" fill="#1d4ed8"/></svg></button>
       </div>
       <div class="dock">
@@ -156,8 +162,8 @@ const $=s=>document.querySelector(s);
 const flag=c=>{if(c==='ALL')return'🌍';const k=c.toLowerCase();return `<img class="fl" src="https://flagcdn.com/24x18/${k}.png" srcset="https://flagcdn.com/48x36/${k}.png 2x" width="24" height="18" alt="${c}">`};
 const dn=(()=>{try{return new Intl.DisplayNames(['en'],{type:'region'})}catch{return null}})();
 const nameOf=c=>{if(c==='ALL')return'All countries';try{return dn?dn.of(c):c}catch{return c}};
-const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ',SKIP='EU UN EZ AC CP DG EA IC TA XA XB QO ZZ'.split(' ');
-const COUNTRIES=dn?[...L].flatMap(a=>[...L].map(b=>a+b)).filter(c=>!SKIP.includes(c)&&dn.of(c)!==c).map(c=>({code:c,name:dn.of(c)})):['KE','UG','TZ','ZA','NG','GH','US','GB','IN'].map(c=>({code:c,name:c}));
+const ISO='AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
+const COUNTRIES=(()=>{const seen=new Set();return ISO.map(c=>({code:c,name:nameOf(c)})).filter(c=>!seen.has(c.name)&&seen.add(c.name))})();
 let myId,pc,stream,mine=((navigator.language.split('-')[1]||'KE').toUpperCase()),want='ALL',stats={total:0,countries:{}},pend=[],picked=new Set(),ready,gotId=new Promise(r=>ready=r),es;
 let ice=[{urls:'stun:stun.l.google.com:19302'}],linked=false;
 let cfg={},token=null,email=null,gender=null,started=false,pendingStart=false;
@@ -173,7 +179,8 @@ const NOSERVER='Server not reachable. This site must run server.js (Node).';
 function conn(t,ok){const e=$('#conn');e.classList.toggle('hidden',ok);e.textContent=t;e.style.color='var(--bad)'}
 function stopMedia(){stream&&stream.getTracks().forEach(t=>t.stop());stream=null;clearInterval(watch)}
 function showLogin(msg,plain){stopMedia();started=false;show('login');$('#loginMsg').innerHTML=msg||'';if(plain){$('#gbtn').textContent='';return}
- if(!cfg.googleClientId){$('#guest').classList.remove('hidden');return}
+ if(cfg.allowGuest)$('#guest').classList.remove('hidden');
+ if(!cfg.googleClientId){if(!cfg.allowGuest)$('#loginMsg').textContent='Sign-in is not set up yet.';return}
  const t=setInterval(()=>{if(!window.google||!google.accounts)return;clearInterval(t);
   google.accounts.id.initialize({client_id:cfg.googleClientId,callback:r=>doAuth({credential:r.credential})});
   google.accounts.id.renderButton($('#gbtn'),{theme:'filled_blue',size:'large',shape:'pill',text:'continue_with'})},200)}
@@ -207,7 +214,7 @@ function handle(m){
  else if(m.type==='matched'){idle('Connecting...');startPeer(m.initiator);if(m.peer&&/^[A-Z]{2}$/.test(m.peer)){$('#peerTag').innerHTML=flag(m.peer)+' '+nameOf(m.peer);$('#peerTag').classList.remove('hidden')}}
  else if(m.type==='signal')onSig(m.data);
  else if(m.type==='chat')toast(m.text,'tr');
- else if(m.type==='kicked'){es.close();closePeer(true);showLogin('You opened We Meet in another tab or device.<br><a href="javascript:location.reload()" style="color:var(--b)">Use it here instead</a>',true)}
+ else if(m.type==='kicked'){es.close();closePeer(true);showLogin('You opened Duotalk in another tab or device.<br><a href="javascript:location.reload()" style="color:var(--b)">Use it here instead</a>',true)}
  else if(m.type==='partner-left'){closePeer();find()}
  else if(m.type==='banned'){idle('You were temporarily banned after multiple reports.');es.close()}
 }
@@ -219,12 +226,14 @@ async function startPeer(init){
  closePeer(true);
  pc=new RTCPeerConnection({iceServers:ice});
  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
- pc.ontrack=e=>{$('#remote').srcObject=e.streams[0];$('#idle').classList.add('hidden');linked=true;$('#flag').classList.remove('hidden')};
+ pc.getSenders().forEach(s=>{if(s.track&&s.track.kind==='video'){const p=s.getParameters();p.encodings=p.encodings&&p.encodings.length?p.encodings:[{}];p.encodings[0].maxBitrate=2500000;p.degradationPreference='maintain-resolution';s.setParameters(p).catch(()=>{})}});
+ pc.ontrack=e=>{$('#remote').srcObject=e.streams[0];$('#idle').classList.add('hidden');linked=true;$('#flag').classList.remove('hidden');$('#reacts').classList.remove('hidden')};
  pc.onicecandidate=e=>e.candidate&&sig({candidate:e.candidate});
  pc.onconnectionstatechange=()=>{if(pc&&pc.connectionState==='failed')idle('Could not connect. Press Next.')};
  if(init){const o=await pc.createOffer();await pc.setLocalDescription(o);sig({sdp:pc.localDescription})}
 }
 async function onSig(d){
+ if(d.react){if(REACTS.includes(d.react))fly(d.react);return}
  if(!pc)return;
  if(d.sdp){await pc.setRemoteDescription(d.sdp);for(const c of pend)await pc.addIceCandidate(c);pend=[];
   if(d.sdp.type==='offer'){const a=await pc.createAnswer();await pc.setLocalDescription(a);sig({sdp:pc.localDescription})}}
@@ -232,12 +241,23 @@ async function onSig(d){
 }
 function closePeer(keep){
  if(pc){pc.close();pc=null}pend=[];$('#remote').srcObject=null;
- linked=false;$('#flag').classList.add('hidden');$('#repM').classList.add('hidden');$('#peerTag').classList.add('hidden');
+ linked=false;$('#flag').classList.add('hidden');$('#reacts').classList.add('hidden');$('#repM').classList.add('hidden');$('#peerTag').classList.add('hidden');
  if(!keep){$('#tr').textContent='';idle('Looking for someone...')}
 }
 
+// ---- reactions: shown on the other person's screen, not yours
+const REACTS=['❤️','😂','😊','🔥'];let lastR=0;
+function fly(e){const f=document.createElement('div');f.className='fly';f.textContent=e;f.style.left=(8+Math.random()*60)+'%';$('#tileR').append(f);setTimeout(()=>f.remove(),2400)}
+$('#reacts').onclick=e=>{const b=e.target.closest('[data-e]');if(!b||!linked)return;const n=Date.now();if(n-lastR<400)return;lastR=n;sig({react:b.dataset.e})};
+
 // ---- small chat
-function toast(t,box,mine){const d=document.createElement('div');d.className='toast'+(mine?' mine':'');d.textContent=t;$('#'+box).append(d);setTimeout(()=>d.remove(),7000)}
+function toast(t,box,mine,sec=15){
+ const d=document.createElement('div');d.className='toast'+(mine?' mine':'');
+ const s=document.createElement('span');s.textContent=t;const c=document.createElement('span');c.className='cd';d.append(s,c);
+ let n=sec;c.textContent=n+'s';
+ const iv=setInterval(()=>{n--;if(n<=0){clearInterval(iv);d.remove()}else c.textContent=n+'s'},1000);
+ $('#'+box).append(d);
+}
 $('#chatForm').onsubmit=e=>{e.preventDefault();const t=$('#msg').value.trim();if(!t)return;if(linked)toast(t,'tr',true);post('/chat',{text:t});$('#msg').value=''};
 
 // ---- controls
@@ -250,7 +270,7 @@ $('#next').onclick=()=>{
 $('#stop').onclick=()=>{started=false;closeAway();closePeer();post('/stop');idle('Press Start to meet someone');label()};
 $('#flag').onclick=()=>{if(linked)$('#repM').classList.remove('hidden')};
 $('#repClose').onclick=()=>$('#repM').classList.add('hidden');
-$('#repM').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;$('#repM').classList.add('hidden');closePeer();post('/report',{reason:b.dataset.r});find();toast('Thanks, your report was sent','tr')};
+$('#repM').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;$('#repM').classList.add('hidden');closePeer();post('/report',{reason:b.dataset.r});find();toast('Thanks, your report was sent','tr',false,4)};
 const updIam=()=>$('#iam').textContent='I am'+(gender?': '+gender[0].toUpperCase()+gender.slice(1):'')+' ▾';
 $('#iam').onclick=()=>$('#iamM').classList.remove('hidden');
 $('#iamClose').onclick=()=>{pendingStart=false;$('#iamM').classList.add('hidden')};
@@ -258,7 +278,7 @@ $('#iamM').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;gender=
 function leaveAll(){closePeer();post('/stop');closeAway();started=false;stopMedia();show('home')}
 async function getMedia(){
  if(!navigator.mediaDevices||!window.isSecureContext)throw{name:'Insecure'};
- try{return await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:true})}
+ try{return await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:innerWidth>700?1920:1280},height:{ideal:innerWidth>700?1080:720},frameRate:{ideal:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
  catch(e){if(e.name==='NotAllowedError'||e.name==='SecurityError')throw e;return await navigator.mediaDevices.getUserMedia({video:true})}
 }
 const HELP={Insecure:'Open this site with https:// (secure link). Browsers block the camera on http.',NotAllowedError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',SecurityError:'Camera is blocked. Tap the lock icon in the address bar, set Camera and Microphone to Allow, then reload.',NotFoundError:'No camera was found on this device.',NotReadableError:'Your camera is being used by another app or browser tab. Close it and try again.'};
